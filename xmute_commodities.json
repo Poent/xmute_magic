@@ -1,125 +1,160 @@
 {
-    "thaumaturgy_ingredients": [
+  "thaumaturgy_ingredients": [
       {
-        "item_name": "Aqirite",
-        "item_id": {
-          "tier_1": 210933,
-          "tier_2": 210934,
-          "tier_3": 210935
-        },
-        "xmute_mats": [ "Gloom Chitin", "Luredrop", "Orbinid" ],
-        "xmute_results": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Aqirite",
+          "tiers": [
+              { "tier": 1, "item_id": 210933 },
+              { "tier": 2, "item_id": 210934 },
+              { "tier": 3, "item_id": 210935 }
+          ],
+          "transmutations": [
+              { "material": "Gloom Chitin", "result_chance": 0.16 },
+              { "material": "Luredrop", "result_chance": 0.16 },
+              { "material": "Orbinid", "result_chance": 0.16 }
+          ]
       },
       {
-        "item_name": "Arathor's Spear",
-        "item_id": {
-          "tier_1": 210808,
-          "tier_2": 210809,
-          "tier_3": 210810
-        },
-        "xmute_mats": [ "Ironclaw Ore", "Blessing Blossom", "Stormcharged Leather" ],
-        "xmute_results": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Arathor's Spear",
+          "tiers": [
+              { "tier": 1, "item_id": 210808 },
+              { "tier": 2, "item_id": 210809 },
+              { "tier": 3, "item_id": 210810 }
+          ],
+          "transmutations": [
+              { "material": "Ironclaw Ore", "result_chance": 0.16 },
+              { "material": "Blessing Blossom", "result_chance": 0.16 },
+              { "material": "Stormcharged Leather", "result_chance": 0.16 }
+          ]
       },
       {
-        "item_name": "Bismuth",
-        "item_id": {
-          "tier_1": 210930,
-          "tier_2": 210931,
-          "tier_3": 210932
-        },
-        "xmute_mats": [ "Mycobloom", "Storm Dust", "Weavercloth" ],
-        "xmute_results": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Bismuth",
+          "tiers": [
+              { "tier": 1, "item_id": 210930 },
+              { "tier": 2, "item_id": 210931 },
+              { "tier": 3, "item_id": 210932 }
+          ],
+          "transmutations": [
+              { "material": "Mycobloom", "result_chance": 0.16 },
+              { "material": "Storm Dust", "result_chance": 0.16 },
+              { "material": "Weavercloth", "result_chance": 0.16 }
+          ]
       },
       {
-        "item_name": "Blessing Blossom",
-        "item_id": {
-          "tier_1": 210805,
-          "tier_2": 210806,
-          "tier_3": 210807 
-        },
-        "xmute_results": [ "Arathor's Spear", "ironclaw ore", "stormcharged leather" ],
-        "xmute_mats": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Blessing Blossom",
+          "tiers": [
+              { "tier": 1, "item_id": 210805 },
+              { "tier": 2, "item_id": 210806 },
+              { "tier": 3, "item_id": 210807 }
+          ],
+          "transmutations": [
+              { "material": "Arathor's Spear", "result_chance": 0.16 },
+              { "material": "Ironclaw Ore", "result_chance": 0.16 },
+              { "material": "Stormcharged Leather", "result_chance": 0.16 }
+          ]
       },
       {
-        "item_name": "Gloom Chitin",
-        "item_id": {
-          "tier_1": 212667,
-          "tier_2": 212668,
-          "tier_3": 212669
-        },
-        "xmute_mats": [ "Aqirite", "Orbinid", "Luredrop"],
-        "xmute_results": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Gloom Chitin",
+          "tiers": [
+              { "tier": 1, "item_id": 212667 },
+              { "tier": 2, "item_id": 212668 },
+              { "tier": 3, "item_id": 212669 }
+          ],
+          "transmutations": [
+              { "material": "Aqirite", "result_chance": 0.16 },
+              { "material": "Orbinid", "result_chance": 0.16 },
+              { "material": "Luredrop", "result_chance": 0.16 }
+          ]
       },
       {
-        "item_name": "Ironclaw Ore",
-        "item_id": {
-          "tier_1": 210936,
-          "tier_2": 210937,
-          "tier_3": 210938
-        },
-        "xmute_mats": [ "Arathor's Spear", "blessing blossom", "stormcharged leather" ],
-        "xmute_results": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Ironclaw Ore",
+          "tiers": [
+              { "tier": 1, "item_id": 210936 },
+              { "tier": 2, "item_id": 210937 },
+              { "tier": 3, "item_id": 210938 }
+          ],
+          "transmutations": [
+              { "material": "Arathor's Spear", "result_chance": 0.16 },
+              { "material": "Blessing Blossom", "result_chance": 0.16 },
+              { "material": "Stormcharged Leather", "result_chance": 0.16 }
+          ]
       },
       {
-        "item_name": "Luredrop",
-        "item_id": {
-          "tier_1": 210799,
-          "tier_2": 210800,
-          "tier_3": 210801
-        },
-        "xmute_mats": [ "Aqirite", "Gloom Chitin", "Orbinid" ],
-        "xmute_results": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Luredrop",
+          "tiers": [
+              { "tier": 1, "item_id": 210799 },
+              { "tier": 2, "item_id": 210800 },
+              { "tier": 3, "item_id": 210801 }
+          ],
+          "transmutations": [
+              { "material": "Aqirite", "result_chance": 0.16 },
+              { "material": "Gloom Chitin", "result_chance": 0.16 },
+              { "material": "Orbinid", "result_chance": 0.16 }
+          ]
       },
       {
-        "item_name": "Mycobloom",
-        "item_id": {
-          "tier_1": 210796,
-          "tier_2": 210797,
-          "tier_3": 210798
-        },
-        "xmute_results": [ "bisumth", "storm dust", "weavercloth" ],
-        "xmute_mats": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Mycobloom",
+          "tiers": [
+              { "tier": 1, "item_id": 210796 },
+              { "tier": 2, "item_id": 210797 },
+              { "tier": 3, "item_id": 210798 }
+          ],
+          "transmutations": [
+              { "material": "Bismuth", "result_chance": 0.16 },
+              { "material": "Storm Dust", "result_chance": 0.16 },
+              { "material": "Weavercloth", "result_chance": 0.16 }
+          ]
       },
       {
-        "item_name": "Orbinid",
-        "item_id": {
-          "tier_1": 210802,
-          "tier_2": 210803,
-          "tier_3": 210804
-        },
-        "xmute_mats": [ "Aqirite", "Gloom Chitin", "Luredrop" ],
-        "xmute_results": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Orbinid",
+          "tiers": [
+              { "tier": 1, "item_id": 210802 },
+              { "tier": 2, "item_id": 210803 },
+              { "tier": 3, "item_id": 210804 }
+          ],
+          "transmutations": [
+              { "material": "Aqirite", "result_chance": 0.16 },
+              { "material": "Gloom Chitin", "result_chance": 0.16 },
+              { "material": "Luredrop", "result_chance": 0.16 }
+          ]
       },
       {
-        "item_name": "Storm Dust",
-        "item_id": {
-          "tier_1": 219946,
-          "tier_2": 219947,
-          "tier_3": 219948
-        },
-        "xmute_mats": [ "Bismuth", "Mycobloom", "Weavercloth" ],
-        "xmute_results": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Storm Dust",
+          "tiers": [
+              { "tier": 1, "item_id": 219946 },
+              { "tier": 2, "item_id": 219947 },
+              { "tier": 3, "item_id": 219948 }
+          ],
+          "transmutations": [
+              { "material": "Bismuth", "result_chance": 0.16 },
+              { "material": "Mycobloom", "result_chance": 0.16 },
+              { "material": "Weavercloth", "result_chance": 0.16 }
+          ]
       },
       {
-        "item_name": "Stormcharged Leather",
-        "item_id": {
-          "tier_1": 212666,
-          "tier_2": 212667,
-          "tier_3": 212668
-        },
-        "xmute_mats": [ "Arathor's Spear", "Blessing Blossom", "Ironclaw Ore" ],
-        "xmute_results": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Stormcharged Leather",
+          "tiers": [
+              { "tier": 1, "item_id": 212666 },
+              { "tier": 2, "item_id": 212667 },
+              { "tier": 3, "item_id": 212668 }
+          ],
+          "transmutations": [
+              { "material": "Arathor's Spear", "result_chance": 0.16 },
+              { "material": "Blessing Blossom", "result_chance": 0.16 },
+              { "material": "Ironclaw Ore", "result_chance": 0.16 }
+          ]
       },
       {
-        "item_name": "Weavercloth",
-        "item_id": {
-          "tier_1": 224828,
-          "tier_2": 224829,
-          "tier_3": 224830
-        },
-        "xmute_mats": [ "Bismuth", "Mycobloom", "Storm Dust" ],
-        "xmute_results": [ 0.16, 0.16, 0.16 ]
+          "item_name": "Weavercloth",
+          "tiers": [
+              { "tier": 1, "item_id": 224828 },
+              { "tier": 2, "item_id": 224829 },
+              { "tier": 3, "item_id": 224830 }
+          ],
+          "transmutations": [
+              { "material": "Bismuth", "result_chance": 0.16 },
+              { "material": "Mycobloom", "result_chance": 0.16 },
+              { "material": "Storm Dust", "result_chance": 0.16 }
+          ]
       }
-    ]
-  }
-  
+  ]
+}
