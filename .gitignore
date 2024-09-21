@@ -3,3 +3,8 @@
 auth.json
 token.json
 
+*.db
+*.sqlite
+
+#exclude pycache
+__pycache__/
