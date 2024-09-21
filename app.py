@@ -2,6 +2,11 @@ import json
 from bnet_auth_api import BnetAuthApi
 from bnet_ah_api import BnetAhApi, AuctionDatabase
 
+def load_xmute_commodities(file_path='xmute_commodities.json'):
+    """Load the xmute_commodities.json file."""
+    with open(file_path, 'r') as file:
+        return json.load(file)['thaumaturgy_ingredients']
+
 # Main logic
 if __name__ == "__main__":
     # Load client credentials from auth.json
@@ -33,3 +38,10 @@ if __name__ == "__main__":
             print(f"Row {index}: {labeled_row}")
     else:
         print("No data available.")
+
+    # save tracked items
+    xmute_items = load_xmute_commodities()
+    db_handler.track_items(xmute_items)
+    print("Tracked items have been updated.")
+
+    db_handler.get_item_stats(210796, "tracked_items")

@@ -1,5 +1,6 @@
 import sqlite3
 import time
+import json
 
 class AuctionDatabase:
     def __init__(self, db_path='commodities.db'):
@@ -77,3 +78,52 @@ class AuctionDatabase:
             return None, None
         finally:
             conn.close()
+
+        
+    def track_items(db_handler, xmute_items):
+        """Track items that match the xmute_commodities in the database if they have a newer timestamp."""
+        conn = sqlite3.connect(db_handler.db_path)
+        cursor = conn.cursor()
+
+        for item in xmute_items:
+            for tier, item_id in item['item_id'].items():  # Loop through the tiers of item IDs
+                # Fetch the latest timestamp for the item from the tracked_items table
+                cursor.execute('''
+                    SELECT MAX(timestamp) FROM tracked_items WHERE item_id = ?
+                ''', (item_id,))
+                result = cursor.fetchone()
+                tracked_timestamp = result[0] if result[0] else 0
+
+                # Fetch matching items from the commodities table with a newer timestamp
+                cursor.execute('''
+                    SELECT item_id, quantity, unit_price, timestamp FROM commodities 
+                    WHERE item_id = ? AND timestamp > ?
+                ''', (item_id, tracked_timestamp))
+                new_items = cursor.fetchall()
+
+                # Insert the new items into the tracked_items table
+                for new_item in new_items:
+                    cursor.execute('''
+                        INSERT INTO tracked_items (item_id, quantity, unit_price, timestamp)
+                        VALUES (?, ?, ?, ?)
+                    ''', new_item)
+
+        conn.commit()
+        conn.close()
+
+    #function to get item stats by ID from the specified table in the database
+    # stats should include the cumulative quantity of the item and the average unit price
+    def get_item_stats(self, item_id, table):
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute(f'SELECT SUM(quantity), AVG(unit_price) FROM {table} WHERE item_id = {item_id}')
+            stats = cursor.fetchone()
+            print(f"Item ID [{item_id}] - total quantity: {stats[0]}, average unit price: {stats[1]/10000:.2f} g")
+            return stats
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return None
+        finally:
+            conn.close()
+
