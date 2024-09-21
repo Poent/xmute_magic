@@ -45,3 +45,4 @@ if __name__ == "__main__":
     print("Tracked items have been updated.")
 
     db_handler.get_item_stats(210796, "tracked_items")
+    db_handler.get_table_stats("tracked_items")

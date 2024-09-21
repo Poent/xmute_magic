@@ -126,4 +126,20 @@ class AuctionDatabase:
             return None
         finally:
             conn.close()
+    
+    # function to get table stats by table name
+    # stats should include the number of rows in the table, the number of unique item IDs, and the number of unique timestamps
+    def get_table_stats(self, table):
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute(f'SELECT COUNT(*), COUNT(DISTINCT item_id), COUNT(DISTINCT timestamp) FROM {table}')
+            stats = cursor.fetchone()
+            print(f"Table [{table}] - rows: {stats[0]}, unique item IDs: {stats[1]}, unique timestamps: {stats[2]}")
+            return stats
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return None
+        finally:
+            conn.close()
 
