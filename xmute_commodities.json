@@ -1,0 +1,125 @@
+{
+    "thaumaturgy_ingredients": [
+      {
+        "item_name": "Aqirite",
+        "item_id": {
+          "tier_1": 210933,
+          "tier_2": 210934,
+          "tier_3": 210935
+        },
+        "xmute_mats": [ "Gloom Chitin", "Luredrop", "Orbinid" ],
+        "xmute_results": [ 0.16, 0.16, 0.16 ]
+      },
+      {
+        "item_name": "Arathor's Spear",
+        "item_id": {
+          "tier_1": 210808,
+          "tier_2": 210809,
+          "tier_3": 210810
+        },
+        "xmute_mats": [ "Ironclaw Ore", "Blessing Blossom", "Stormcharged Leather" ],
+        "xmute_results": [ 0.16, 0.16, 0.16 ]
+      },
+      {
+        "item_name": "Bismuth",
+        "item_id": {
+          "tier_1": 210930,
+          "tier_2": 210931,
+          "tier_3": 210932
+        },
+        "xmute_mats": [ "Mycobloom", "Storm Dust", "Weavercloth" ],
+        "xmute_results": [ 0.16, 0.16, 0.16 ]
+      },
+      {
+        "item_name": "Blessing Blossom",
+        "item_id": {
+          "tier_1": 210805,
+          "tier_2": 210806,
+          "tier_3": 210807 
+        },
+        "xmute_results": [ "Arathor's Spear", "ironclaw ore", "stormcharged leather" ],
+        "xmute_mats": [ 0.16, 0.16, 0.16 ]
+      },
+      {
+        "item_name": "Gloom Chitin",
+        "item_id": {
+          "tier_1": 212667,
+          "tier_2": 212668,
+          "tier_3": 212669
+        },
+        "xmute_mats": [ "Aqirite", "Orbinid", "Luredrop"],
+        "xmute_results": [ 0.16, 0.16, 0.16 ]
+      },
+      {
+        "item_name": "Ironclaw Ore",
+        "item_id": {
+          "tier_1": 210936,
+          "tier_2": 210937,
+          "tier_3": 210938
+        },
+        "xmute_mats": [ "Arathor's Spear", "blessing blossom", "stormcharged leather" ],
+        "xmute_results": [ 0.16, 0.16, 0.16 ]
+      },
+      {
+        "item_name": "Luredrop",
+        "item_id": {
+          "tier_1": 210799,
+          "tier_2": 210800,
+          "tier_3": 210801
+        },
+        "xmute_mats": [ "Aqirite", "Gloom Chitin", "Orbinid" ],
+        "xmute_results": [ 0.16, 0.16, 0.16 ]
+      },
+      {
+        "item_name": "Mycobloom",
+        "item_id": {
+          "tier_1": 210796,
+          "tier_2": 210797,
+          "tier_3": 210798
+        },
+        "xmute_results": [ "bisumth", "storm dust", "weavercloth" ],
+        "xmute_mats": [ 0.16, 0.16, 0.16 ]
+      },
+      {
+        "item_name": "Orbinid",
+        "item_id": {
+          "tier_1": 210802,
+          "tier_2": 210803,
+          "tier_3": 210804
+        },
+        "xmute_mats": [ "Aqirite", "Gloom Chitin", "Luredrop" ],
+        "xmute_results": [ 0.16, 0.16, 0.16 ]
+      },
+      {
+        "item_name": "Storm Dust",
+        "item_id": {
+          "tier_1": 219946,
+          "tier_2": 219947,
+          "tier_3": 219948
+        },
+        "xmute_mats": [ "Bismuth", "Mycobloom", "Weavercloth" ],
+        "xmute_results": [ 0.16, 0.16, 0.16 ]
+      },
+      {
+        "item_name": "Stormcharged Leather",
+        "item_id": {
+          "tier_1": 212666,
+          "tier_2": 212667,
+          "tier_3": 212668
+        },
+        "xmute_mats": [ "Arathor's Spear", "Blessing Blossom", "Ironclaw Ore" ],
+        "xmute_results": [ 0.16, 0.16, 0.16 ]
+      },
+      {
+        "item_name": "Weavercloth",
+        "item_id": {
+          "tier_1": 224828,
+          "tier_2": 224829,
+          "tier_3": 224830
+        },
+        "xmute_mats": [ "Bismuth", "Mycobloom", "Storm Dust" ],
+        "xmute_results": [ 0.16, 0.16, 0.16 ]
+      }
+    ]
+  }
+  

@@ -1,0 +1,5 @@
+#exclude sensitive information
+
+auth.json
+token.json
+
