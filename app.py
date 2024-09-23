@@ -76,15 +76,33 @@ if __name__ == "__main__":
 
     # for each item in xmute_commodities.json, get the stats for the tracked_items table
 
+    # Initialize a dictionary to group results by tier
+    grouped_results = {}
+    
+    # Iterate through the data and group by tier
     for item in xmute_data:
         for tier in item["tiers"]:
             item_id = tier["item_id"]
             item_stats = db_handler.get_item_stats(item_id, "tracked_items")
             if item_stats:
                 active_auctions, min_unit_price = item_stats
-                if min_unit_price is not None:
-                    print(f"{get_item_name_by_id(item_id, xmute_data)}, Tier: {tier['tier']} Active auctions: {active_auctions}, Minimum unit price: {min_unit_price / 10000:.2f} g")
-                else:
-                    print(f"{get_item_name_by_id(item_id, xmute_data)}, Tier: {tier['tier']} Active auctions: {active_auctions}, Minimum unit price: N/A")
+                item_name = get_item_name_by_id(item_id, xmute_data)
+                tier_level = tier['tier']
+                if tier_level not in grouped_results:
+                    grouped_results[tier_level] = []
+                grouped_results[tier_level].append({
+                    "item_name": item_name,
+                    "active_auctions": active_auctions,
+                    "min_unit_price": min_unit_price
+                })
+    
+    # Print the grouped results
+    for tier, items in grouped_results.items():
+        print(f"Tier: {tier}")
+        for item in items:
+            if item["min_unit_price"] is not None:
+                print(f"  {item['item_name']}, Active auctions: {item['active_auctions']}, Minimum unit price: {item['min_unit_price'] / 10000:.2f} g")
+            else:
+                print(f"  {item['item_name']}, Active auctions: {item['active_auctions']}, Minimum unit price: N/A")
 
 
