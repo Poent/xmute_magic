@@ -162,6 +162,7 @@ class AuctionDatabase:
 
 
 
+
     def get_item_stats(self, item_id, table):
         """Retrieve the stats for a specific item, including the number of active auctions and the minimum unit price."""
         try:
