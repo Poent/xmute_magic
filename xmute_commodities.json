@@ -133,9 +133,9 @@
       {
           "item_name": "Stormcharged Leather",
           "tiers": [
-              { "tier": 1, "item_id": 212666 },
-              { "tier": 2, "item_id": 212667 },
-              { "tier": 3, "item_id": 212668 }
+              { "tier": 1, "item_id": 212664 },
+              { "tier": 2, "item_id": 212665 },
+              { "tier": 3, "item_id": 212666 }
           ],
           "transmutations": [
               { "material": "Arathor's Spear", "result_chance": 0.16 },
@@ -147,8 +147,8 @@
           "item_name": "Weavercloth",
           "tiers": [
               { "tier": 1, "item_id": 224828 },
-              { "tier": 2, "item_id": 224829 },
-              { "tier": 3, "item_id": 224830 }
+              { "tier": 2, "item_id": 228231 },
+              { "tier": 3, "item_id": 224832 }
           ],
           "transmutations": [
               { "material": "Bismuth", "result_chance": 0.16 },
