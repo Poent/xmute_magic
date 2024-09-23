@@ -26,6 +26,7 @@ if __name__ == "__main__":
     with open('auth.json') as file:
         auth_data = json.load(file)
 
+
     # Initialize the database handler
     db_handler = AuctionDatabase(db_path='commodities.db')
 
@@ -43,18 +44,6 @@ if __name__ == "__main__":
 
     # Store tracked items using the loaded xmute data
     db_handler.store_tracked_items(xmute_data)
-
-    # Call the get_item_stats() function for a specific item_id and print the result
-    item_id = 210933  # Replace with the item_id you want to check
-    item_stats = db_handler.get_item_stats(item_id, "tracked_items")
-    if item_stats:
-        active_auctions, min_unit_price = item_stats
-        # print the mapped name of the item_id
-        print(f"DEBUG EXAMPLE USAGE >> Stats for Item: {get_item_name_by_id(item_id, xmute_data)}")
-        if min_unit_price is not None:
-            print(f"    Active auctions: {active_auctions}, Minimum unit price: {min_unit_price / 10000:.2f} g")
-        else:
-            print(f"    Active auctions: {active_auctions}, Minimum unit price: N/A")
 
     # Get table stats for the commodities table (last AH snapshot)
     print("Stats for the commodities table:")
@@ -82,3 +71,38 @@ if __name__ == "__main__":
         print(f"    Total auctions: {total_auctions}, Unique items: {unique_items}, Oldest Auction: {oldest_auction}")
     else:
         print("    No data available")
+
+
+
+    # for each item in xmute_commodities.json, get the stats for the tracked_items table
+
+    # Initialize a dictionary to group results by tier
+    grouped_results = {}
+    
+    # Iterate through the data and group by tier
+    for item in xmute_data:
+        for tier in item["tiers"]:
+            item_id = tier["item_id"]
+            item_stats = db_handler.get_item_stats(item_id, "tracked_items")
+            if item_stats:
+                active_auctions, min_unit_price = item_stats
+                item_name = get_item_name_by_id(item_id, xmute_data)
+                tier_level = tier['tier']
+                if tier_level not in grouped_results:
+                    grouped_results[tier_level] = []
+                grouped_results[tier_level].append({
+                    "item_name": item_name,
+                    "active_auctions": active_auctions,
+                    "min_unit_price": min_unit_price
+                })
+    
+    # Print the grouped results
+    for tier, items in grouped_results.items():
+        print(f"Tier: {tier}")
+        for item in items:
+            if item["min_unit_price"] is not None:
+                print(f"  {item['item_name']}, Active auctions: {item['active_auctions']}, Minimum unit price: {item['min_unit_price'] / 10000:.2f} g")
+            else:
+                print(f"  {item['item_name']}, Active auctions: {item['active_auctions']}, Minimum unit price: N/A")
+
+

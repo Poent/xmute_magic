@@ -5,6 +5,7 @@ token.json
 
 *.db
 *.sqlite
+.venv
 
 #exclude pycache
 __pycache__/

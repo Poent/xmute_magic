@@ -147,8 +147,8 @@
           "item_name": "Weavercloth",
           "tiers": [
               { "tier": 1, "item_id": 224828 },
-              { "tier": 2, "item_id": 224829 },
-              { "tier": 3, "item_id": 224830 }
+              { "tier": 2, "item_id": 228231 },
+              { "tier": 3, "item_id": 224832 }
           ],
           "transmutations": [
               { "material": "Bismuth", "result_chance": 0.16 },
