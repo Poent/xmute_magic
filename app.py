@@ -42,6 +42,7 @@ if __name__ == "__main__":
     # db_handler.print_tracked_items_summary()
 
     print(db_handler.get_tracked_items_summary())
+    db_handler.print_tracked_items_summary()
 
 
 
