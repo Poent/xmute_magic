@@ -23,13 +23,13 @@ if __name__ == "__main__":
 
     # Fetch and save commodities data to the database
     try:
-        commodities = wow_api.get_commodities_db()
-        db_handler.update_ah_snapshot(commodities)
+        commodities = wow_api.get_commodities_db() # Fetch commodities data
+        db_handler.update_ah_snapshot(commodities) # Save commodities data to the database
         print("Commodities data has been saved to the database.")
     except Exception as e:
         print(f"Error fetching commodities data: {e}")
 
-    # Store tracked items using the loaded xmute data
+    # pull the tracked items from the database and store them in the tracked_items table
     db_handler.store_tracked_items(xmute_data)
 
     # Get table stats for the commodities table (last AH snapshot)
@@ -100,7 +100,9 @@ if __name__ == "__main__":
     print("Tracked items summary table:")
     db_handler.update_tracked_items_summary()
 
-    db_handler.print_tracked_items_summary()
+    # db_handler.print_tracked_items_summary()
+
+    print(db_handler.get_tracked_items_summary())
 
 
 

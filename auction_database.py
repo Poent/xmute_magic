@@ -328,3 +328,35 @@ class AuctionDatabase:
             print(f"Database error: {e}")
         finally:
             conn.close()
+
+    # function to return tracked items summary data as an API compatible JSON response
+    def get_tracked_items_summary(self):
+        """Fetch and return the tracked_items_summary data as a JSON response."""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+
+            # Fetch all data from tracked_items_summary
+            cursor.execute('SELECT item_id, item_name, total_auctions, min_unit_price, market_value, last_updated FROM tracked_items_summary')
+            rows = cursor.fetchall()
+
+            # Create a list of dictionaries for each row
+            summary_data = []
+            for row in rows:
+                item_id, item_name, total_auctions, min_unit_price, market_value, last_updated = row
+                summary_data.append({
+                    "item_id": item_id,
+                    "item_name": item_name,
+                    "total_auctions": total_auctions,
+                    "min_unit_price": min_unit_price,
+                    "market_value": market_value,
+                    "last_updated": last_updated
+                })
+
+            return summary_data
+
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return None
+        finally:
+            conn.close()
