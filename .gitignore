@@ -8,6 +8,7 @@ token.json
 .venv
 
 #exclude pycache
-
-__pycache__/
+__pycache__
+**/__pycache__/
 *.pyc
+__pycache__/*

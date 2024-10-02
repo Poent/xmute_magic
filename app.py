@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from flask import Flask, render_template
 from utils import load_xmute_commodities, get_item_name_by_id
@@ -14,9 +15,17 @@ app = Flask(__name__)
 def datetimeformat(value):
     return datetime.datetime.fromtimestamp(value).strftime('%Y-%m-%d %H:%M:%S')
 
-# Initialize the BnetAuthApi object
-bnet_auth = BnetAuthApi(client_id='your_client_id', client_secret='your_client', token_file='token.json')
+# Load the client_id and client_secret from the auth.json file
+try:
+    with open('auth.json', 'r') as file:
+        auth_data = json.load(file)
+        client_id = auth_data['client_id']
+        client_secret = auth_data['client_secret']
+except (FileNotFoundError, KeyError) as e:
+    raise RuntimeError("Error loading authentication data: {}".format(e))
 
+# Initialize the BnetAuthApi object
+bnet_auth = BnetAuthApi(client_id, client_secret, token_file='token.json')
 
 # Initialize the database handler
 db_handler = AuctionDatabase(db_path='commodities.db')
@@ -71,7 +80,6 @@ def update():
     db_handler.update_commodities_db(commodities_data)
 
     return "Database updated"
-
 
 
 if __name__ == "__main__":
