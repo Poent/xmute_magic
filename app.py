@@ -1,48 +1,47 @@
-import json
-from bnet_auth_api import BnetAuthApi
-from bnet_ah_api import BnetAhApi, AuctionDatabase
+import datetime
 
-from utils import load_xmute_commodities, get_item_name_by_id, group_and_print_data, print_table_stats
+from flask import Flask, render_template
+from utils import load_xmute_commodities, get_item_name_by_id
+from auction_database import AuctionDatabase
 
-DEBUG = False
+# Flask app
+app = Flask(__name__)
 
-# Main logic
-if __name__ == "__main__":
-    # Load the xmute commodities data once and pass it around as needed
+# Add the custom datetime filter for formatting timestamps
+@app.template_filter('datetimeformat')
+def datetimeformat(value):
+    return datetime.datetime.fromtimestamp(value).strftime('%Y-%m-%d %H:%M:%S')
+
+# Initialize the database handler
+db_handler = AuctionDatabase(db_path='commodities.db')
+
+@app.route('/')
+def home():
+    # Load xmute_commodities data from JSON
     xmute_data = load_xmute_commodities()
 
-    # Load client credentials from auth.json
-    with open('auth.json') as file:
-        auth_data = json.load(file)
+    # Fetch the tracked items summary from the database
+    tracked_items_summary = db_handler.get_tracked_items_summary()
 
-    # Initialize the database handler
-    db_handler = AuctionDatabase(db_path='commodities.db')
+    # Map item_id to summary data for easy lookup
+    item_summary_by_id = {item['item_id']: item for item in tracked_items_summary}
 
-    # Initialize authentication and API objects
-    bnet_auth = BnetAuthApi(auth_data['client_id'], auth_data['client_secret'])
-    wow_api = BnetAhApi(bnet_auth, db_handler)
+    # Organize the data into a dictionary with tiers and matched auction house data
+    grouped_items = {}
 
-    # Fetch and save commodities data to the database
-    try:
-        commodities = wow_api.get_commodities_db() # Fetch commodities data
-        db_handler.update_ah_snapshot(commodities) # Save commodities data to the database
-        print("Commodities data has been saved to the database.")
-    except Exception as e:
-        print(f"Error fetching commodities data: {e}")
+    for item in xmute_data:
+        item_name = item['item_name']
+        tiers = item.get('tiers', [])
+        
+        # Find corresponding auction house data for each tier using item_id
+        grouped_items[item_name] = {
+            'T1': item_summary_by_id.get(tiers[0]['item_id'], None) if len(tiers) > 0 else None,
+            'T2': item_summary_by_id.get(tiers[1]['item_id'], None) if len(tiers) > 1 else None,
+            'T3': item_summary_by_id.get(tiers[2]['item_id'], None) if len(tiers) > 2 else None,
+        }
 
-    # pull the tracked items from the database and store them in the tracked_items table
-    db_handler.store_tracked_items(xmute_data)
-    db_handler.update_tracked_items_summary()
+    return render_template('index.html', grouped_items=grouped_items)
 
-    # some debug output
-    if DEBUG:
-        print_table_stats(db_handler, "tracked_items")
-        group_and_print_data(xmute_data, db_handler)
-
-    # db_handler.print_tracked_items_summary()
-
-    print(db_handler.get_tracked_items_summary())
-    db_handler.print_tracked_items_summary()
-
-
-
+if __name__ == "__main__":
+    # Run the Flask app
+    app.run(debug=True)

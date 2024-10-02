@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WoW Transmutation Commodities</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+        }
+        th {
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Current AH Price List</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tier</th>
+                {% for item_name in grouped_items %}
+                    <th>{{ item_name }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <!-- T1 Row -->
+            <tr>
+                <td>T1</td>
+                {% for item_name, item_tiers in grouped_items.items() %}
+                    <td>{% if item_tiers.T1 %}{{ item_tiers.T1.min_unit_price / 10000 }} g{% else %}N/A{% endif %}</td>
+                {% endfor %}
+            </tr>
+            <!-- T2 Row -->
+            <tr>
+                <td>T2</td>
+                {% for item_name, item_tiers in grouped_items.items() %}
+                    <td>{% if item_tiers.T2 %}{{ item_tiers.T2.min_unit_price / 10000 }} g{% else %}N/A{% endif %}</td>
+                {% endfor %}
+            </tr>
+            <!-- T3 Row -->
+            <tr>
+                <td>T3</td>
+                {% for item_name, item_tiers in grouped_items.items() %}
+                    <td>{% if item_tiers.T3 %}{{ item_tiers.T3.min_unit_price / 10000 }} g{% else %}N/A{% endif %}</td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
