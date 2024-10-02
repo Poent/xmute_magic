@@ -81,6 +81,8 @@ def update():
 
     return "Database updated"
 
+# print tracked items summary
+print(db_handler.get_tracked_items_summary())
 
 if __name__ == "__main__":
     # Run the Flask app

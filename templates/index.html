@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WoW Transmutation Commodities</title>
+    <title>WoW Transmutation Calculator</title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <!-- DataTables CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <!-- DataTables ColReorder CSS for column resizing -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/colreorder/1.5.4/css/colReorder.dataTables.min.css">
 
     <style>
         table {
@@ -27,96 +29,172 @@
         .controls {
             margin-bottom: 15px;
         }
+        .card {
+            margin-top: 20px;
+            padding: 20px;
+            width: 100%;
+        }
+        .btn {
+            margin: 5px;
+        }
+        .dataTables_wrapper {
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body>
-    <h1>Current AH Price List</h1>
+    <div class="container-fluid">
+        <h1>WoW Transmutation Calculator</h1>
 
-    <!-- Controls to hide/show materials (columns) -->
-    <div class="controls">
-        <h3>Toggle Materials:</h3>
-        {% for item_name in grouped_items %}
-            <button class="toggle-column btn btn-outline-primary active" data-column="{{ loop.index }}" aria-pressed="true">{{ item_name }}</button>
-        {% endfor %}
-    </div>
+        <!-- Card for AH Price List -->
+        <div class="card">
+            <h2>Current AH Price List</h2>
 
-    <!-- Controls to hide/show tiers (rows) -->
-    <div class="controls">
-        <h3>Toggle Tiers:</h3>
-        <button class="toggle-row btn btn-outline-primary active" data-tier="T1" aria-pressed="true">Toggle T1</button>
-        <button class="toggle-row btn btn-outline-primary active" data-tier="T2" aria-pressed="true">Toggle T2</button>
-        <button class="toggle-row btn btn-outline-primary active" data-tier="T3" aria-pressed="true">Toggle T3</button>
-    </div>
+            <!-- Radio buttons to switch between market_value and min_unit_price -->
+            <div class="controls">
+                <h3>Price Type:</h3>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="priceType" id="market_value" value="market_value" checked>
+                    <label class="form-check-label" for="market_value">Market Value</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="priceType" id="min_unit_price" value="min_unit_price">
+                    <label class="form-check-label" for="min_unit_price">Min Unit Price</label>
+                </div>
+            </div>
 
-    <table id="commodities-table" class="display">
-        <thead>
-            <tr>
-                <th>Tier</th>
+            <!-- Controls to hide/show materials (columns) -->
+            <div class="controls">
+                <h3>Toggle Materials:</h3>
                 {% for item_name in grouped_items %}
-                    <th>{{ item_name }}</th>
+                    <button class="toggle-column btn btn-outline-primary btn-sm active" data-column="{{ loop.index }}" aria-pressed="true">{{ item_name }}</button>
                 {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            <!-- T1 Row -->
-            <tr class="tier-row" data-tier="T1">
-                <td>T1</td>
-                {% for item_name, item_tiers in grouped_items.items() %}
-                    <td>{% if item_tiers.T1 %}{{ item_tiers.T1.market_value / 10000 }} g{% else %}N/A{% endif %}</td>
-                {% endfor %}
-            </tr>
-            <!-- T2 Row -->
-            <tr class="tier-row" data-tier="T2">
-                <td>T2</td>
-                {% for item_name, item_tiers in grouped_items.items() %}
-                    <td>{% if item_tiers.T2 %}{{ item_tiers.T2.market_value / 10000 }} g{% else %}N/A{% endif %}</td>
-                {% endfor %}
-            </tr>
-            <!-- T3 Row -->
-            <tr class="tier-row" data-tier="T3">
-                <td>T3</td>
-                {% for item_name, item_tiers in grouped_items.items() %}
-                    <td>{% if item_tiers.T3 %}{{ item_tiers.T3.market_value / 10000 }} g{% else %}N/A{% endif %}</td>
-                {% endfor %}
-            </tr>
-        </tbody>
-    </table>
+            </div>
+
+            <!-- Controls to hide/show tiers (rows) -->
+            <div class="controls">
+                <h3>Toggle Tiers:</h3>
+                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T1" aria-pressed="true">Toggle T1</button>
+                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T2" aria-pressed="true">Toggle T2</button>
+                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T3" aria-pressed="true">Toggle T3</button>
+            </div>
+
+            <!-- Table for commodities -->
+            <div class="table-responsive">
+                <table id="commodities-table" class="display table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Tier</th>
+                            {% for item_name in grouped_items %}
+                                <th>{{ item_name }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- T1 Row -->
+                        <tr class="tier-row" data-tier="T1">
+                            <td>T1</td>
+                            {% for item_name, item_tiers in grouped_items.items() %}
+                                <td class="price" data-market_value="{{ item_tiers.T1.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T1.min_unit_price / 10000 }}">
+                                    {{ "%.2f" | format(item_tiers.T1.market_value / 10000) }} g
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        <!-- T2 Row -->
+                        <tr class="tier-row" data-tier="T2">
+                            <td>T2</td>
+                            {% for item_name, item_tiers in grouped_items.items() %}
+                                <td class="price" data-market_value="{{ item_tiers.T2.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T2.min_unit_price / 10000 }}">
+                                    {{ "%.2f" | format(item_tiers.T2.market_value / 10000) }} g
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        <!-- T3 Row -->
+                        <tr class="tier-row" data-tier="T3">
+                            <td>T3</td>
+                            {% for item_name, item_tiers in grouped_items.items() %}
+                                <td class="price" data-market_value="{{ item_tiers.T3.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T3.min_unit_price / 10000 }}">
+                                    {{ "%.2f" | format(item_tiers.T3.market_value / 10000) }} g
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
 
     <!-- jQuery and Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
     <!-- DataTables JS -->
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+    <!-- DataTables ColReorder JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/colreorder/1.5.4/js/dataTables.colReorder.min.js"></script>
 
     <script>
         $(document).ready(function() {
-            // Initialize DataTable
+            // Initialize DataTable with column reorder
             var table = $('#commodities-table').DataTable({
-                "paging": true,
+                "paging": false,
                 "searching": true,
-                "ordering": true
+                "ordering": true,
+                "colReorder": true, // Enables column resizing
+                "autoWidth": false // Disable automatic width calculation
             });
+    
+            function updatePrices(priceType) {
+                var allRows = $('#commodities-table').DataTable().rows().nodes();
 
+                $(allRows).find('.price').each(function() {
+                    // Access the attribute directly as a string, then parse it into a float
+                    var price = $(this).attr('data-' + priceType);
+
+                    if (price !== undefined && !isNaN(price)) {
+                        // Ensure it's a valid number and convert it to a float
+                        var priceFloat = parseFloat(price);
+                        
+                        // Only update the text if the conversion was successful
+                        if (!isNaN(priceFloat)) {
+                            $(this).text(priceFloat.toFixed(2) + " g");
+                        }
+                    }
+                });
+            }
+
+    
+            // Listen to radio button change event to toggle price type
+            $('input[name="priceType"]').on('change', function() {
+                var selectedPriceType = $('input[name="priceType"]:checked').val(); // Get selected value
+                updatePrices(selectedPriceType); // Update prices
+            });
+    
+            // Initialize the prices with market_value as the default
+            updatePrices('market_value');
+    
             // Toggle column visibility (Materials)
             $('.toggle-column').on('click', function() {
                 var column = table.column($(this).attr('data-column'));
                 column.visible(!column.visible());
-                
+    
                 // Toggle the button's active state
                 $(this).toggleClass('active');
                 $(this).attr('aria-pressed', $(this).hasClass('active'));
+    
+                // Adjust table layout after toggling columns
+                table.columns.adjust().draw(); // Adjust and redraw the table
             });
-
+    
             // Toggle row visibility (Tiers)
             $('.toggle-row').on('click', function() {
                 var tier = $(this).attr('data-tier');
                 $('tr[data-tier="' + tier + '"]').toggle();
-
+    
                 // Toggle the button's active state
                 $(this).toggleClass('active');
                 $(this).attr('aria-pressed', $(this).hasClass('active'));
             });
         });
     </script>
-</body>
-</html>
+</html>    
