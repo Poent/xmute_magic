@@ -2,6 +2,8 @@ import datetime
 
 from flask import Flask, render_template
 from utils import load_xmute_commodities, get_item_name_by_id
+
+from bnet_auth_api import BnetAuthApi
 from auction_database import AuctionDatabase
 
 # Flask app
@@ -12,11 +14,17 @@ app = Flask(__name__)
 def datetimeformat(value):
     return datetime.datetime.fromtimestamp(value).strftime('%Y-%m-%d %H:%M:%S')
 
+# Initialize the BnetAuthApi object
+bnet_auth = BnetAuthApi(client_id='your_client_id', client_secret='your_client', token_file='token.json')
+
+
 # Initialize the database handler
 db_handler = AuctionDatabase(db_path='commodities.db')
 
 @app.route('/')
 def home():
+    print("- home route accessed -")
+
     # Load xmute_commodities data from JSON
     xmute_data = load_xmute_commodities()
 
@@ -41,6 +49,30 @@ def home():
         }
 
     return render_template('index.html', grouped_items=grouped_items)
+
+# Route to check the token status
+@app.route('/token')
+def token():
+    return bnet_auth.is_token_valid()
+
+# Route to refresh the token
+@app.route('/refresh')
+def refresh():
+    bnet_auth.refresh_token()
+    return "Token refreshed"
+
+# Route to update the database
+@app.route('/update')
+def update():
+    # Fetch the commodities data from the WoW API
+    commodities_data = bnet_auth.get_commodities_db()
+
+    # Update the database with the commodities data
+    db_handler.update_commodities_db(commodities_data)
+
+    return "Database updated"
+
+
 
 if __name__ == "__main__":
     # Run the Flask app

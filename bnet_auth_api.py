@@ -12,31 +12,33 @@ class BnetAuthApi:
         self.oauth = OAuth2Session(client_id)
 
         # Check token validity or refresh if necessary
-        self.check_and_refresh_token()
+        if not self.is_token_valid():
+            self.refresh_token()
 
-    def check_and_refresh_token(self):
+    def is_token_valid(self):
+        """Check if the token is still valid."""
         if self.token:
             if self.token['expires_at'] < time.time():
-                print("Token expired, refreshing...")
-                self.token = self.oauth.fetch_token(
-                    'https://oauth.battle.net/token',
-                    grant_type='client_credentials',
-                    client_id=self.client_id,
-                    client_secret=self.client_secret
-                )
-                self.save_token(self.token, self.token_file)
+                print("Token expired.")
+                return False
             else:
                 expires_at = datetime.datetime.fromtimestamp(self.token['expires_at'])
                 print(f"Token is still valid, expires at {expires_at}")
+                return True
         else:
-            print("No token found, fetching new one...")
-            self.token = self.oauth.fetch_token(
-                'https://oauth.battle.net/token',
-                grant_type='client_credentials',
-                client_id=self.client_id,
-                client_secret=self.client_secret
-            )
-            self.save_token(self.token, self.token_file)
+            print("No token found.")
+            return False
+
+    def refresh_token(self):
+        """Refresh the token."""
+        print("Refreshing token...")
+        self.token = self.oauth.fetch_token(
+            'https://oauth.battle.net/token',
+            grant_type='client_credentials',
+            client_id=self.client_id,
+            client_secret=self.client_secret
+        )
+        self.save_token(self.token, self.token_file)
 
     @staticmethod
     def load_token(filename):
@@ -52,7 +54,8 @@ class BnetAuthApi:
             json.dump(token, file)
 
     def get_headers(self):
-        self.check_and_refresh_token()  # Ensure the token is valid before returning headers
+        if not self.is_token_valid():
+            self.refresh_token()
         return {
             'Authorization': f"Bearer {self.token['access_token']}"
         }
