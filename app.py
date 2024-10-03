@@ -5,15 +5,8 @@ from flask import Flask, render_template
 from utils import load_xmute_commodities, get_item_name_by_id
 
 from bnet_auth_api import BnetAuthApi
+from bnet_ah_api import BnetAhApi
 from auction_database import AuctionDatabase
-
-# Flask app
-app = Flask(__name__)
-
-# Add the custom datetime filter for formatting timestamps
-@app.template_filter('datetimeformat')
-def datetimeformat(value):
-    return datetime.datetime.fromtimestamp(value).strftime('%Y-%m-%d %H:%M:%S')
 
 # Load the client_id and client_secret from the auth.json file
 try:
@@ -24,11 +17,22 @@ try:
 except (FileNotFoundError, KeyError) as e:
     raise RuntimeError("Error loading authentication data: {}".format(e))
 
+# Flask app
+app = Flask(__name__)
+
 # Initialize the BnetAuthApi object
 bnet_auth = BnetAuthApi(client_id, client_secret, token_file='token.json')
 
 # Initialize the database handler
 db_handler = AuctionDatabase(db_path='commodities.db')
+
+# Initialize the BnetAhApi object
+bnet = BnetAhApi(bnet_auth, db_handler)
+
+# Add the custom datetime filter for formatting timestamps
+@app.template_filter('datetimeformat')
+def datetimeformat(value):
+    return datetime.datetime.fromtimestamp(value).strftime('%Y-%m-%d %H:%M:%S')
 
 @app.route('/')
 def home():
@@ -74,10 +78,12 @@ def refresh():
 @app.route('/update')
 def update():
     # Fetch the commodities data from the WoW API
-    commodities_data = bnet_auth.get_commodities_db()
+    commodities_data = BnetAhApi.get_commodities_db()
 
     # Update the database with the commodities data
-    db_handler.update_commodities_db(commodities_data)
+    db_handler.update_ah_snapshot(commodities_data)
+    db_handler.store_tracked_items( load_xmute_commodities() )
+    db_handler.update_tracked_items_summary()
 
     return "Database updated"
 
@@ -85,5 +91,20 @@ def update():
 print(db_handler.get_tracked_items_summary())
 
 if __name__ == "__main__":
+
+    # Fetch the commodities data from the WoW API
+    commodities_data = bnet.get_commodities_db()
+
+    # Update the database with the commodities data
+    db_handler.update_ah_snapshot(commodities_data)
+
+    # store tracked items (extract them from the commodities data snapshot)
+    db_handler.store_tracked_items(load_xmute_commodities())
+
+    # update the tracked items summary
+    db_handler.update_tracked_items_summary()
+
+
+
     # Run the Flask app
     app.run(debug=True)
