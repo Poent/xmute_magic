@@ -64,7 +64,7 @@ def home():
     return render_template('index.html', grouped_items=grouped_items)
 
 # Route to check the token status
-@app.route('/token')
+@app.route('/istokenvalid')
 def token():
     return bnet_auth.is_token_valid()
 

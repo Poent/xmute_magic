@@ -44,7 +44,11 @@
 </head>
 <body>
     <div class="container-fluid">
-        <h1>WoW Transmutation Calculator</h1>
+        <h1>
+            WoW Transmutation Calculator
+            <button id="auth-status" class="btn btn-sm btn-secondary ml-3">Checking token...</button>
+        </h1>
+            
 
         <!-- Card for AH Price List -->
         <div class="card">
@@ -135,7 +139,28 @@
 
     <script>
         $(document).ready(function() {
-            // Initialize DataTable with column reorder
+            // Function to check the token status
+            function checkTokenStatus() {
+                $.get('/istokenvalid', function(response) {
+                    // Update the text or button color based on the token validity
+                    if (response) {
+                        $('#auth-status').text('Token Valid').removeClass('btn-secondary').addClass('btn-success');
+                    } else {
+                        $('#auth-status').text('Token Invalid').removeClass('btn-secondary').addClass('btn-danger');
+                    }
+                }).fail(function() {
+                    // In case of an error in the request
+                    $('#auth-status').text('Error Checking Token').removeClass('btn-secondary').addClass('btn-danger');
+                });
+            }
+
+            // Call the token check function when the page loads
+            checkTokenStatus();
+
+            // Optionally, you can refresh the token status every 30 seconds
+            setInterval(checkTokenStatus, 30000); // 30 seconds
+
+            // Existing DataTable initialization
             var table = $('#commodities-table').DataTable({
                 "paging": false,
                 "searching": true,
@@ -143,19 +168,15 @@
                 "colReorder": true, // Enables column resizing
                 "autoWidth": false // Disable automatic width calculation
             });
-    
+
+            // Function to update prices based on the selected price type
             function updatePrices(priceType) {
                 var allRows = $('#commodities-table').DataTable().rows().nodes();
 
                 $(allRows).find('.price').each(function() {
-                    // Access the attribute directly as a string, then parse it into a float
                     var price = $(this).attr('data-' + priceType);
-
                     if (price !== undefined && !isNaN(price)) {
-                        // Ensure it's a valid number and convert it to a float
                         var priceFloat = parseFloat(price);
-                        
-                        // Only update the text if the conversion was successful
                         if (!isNaN(priceFloat)) {
                             $(this).text(priceFloat.toFixed(2) + " g");
                         }
@@ -163,38 +184,38 @@
                 });
             }
 
-    
             // Listen to radio button change event to toggle price type
             $('input[name="priceType"]').on('change', function() {
                 var selectedPriceType = $('input[name="priceType"]:checked').val(); // Get selected value
                 updatePrices(selectedPriceType); // Update prices
             });
-    
+
             // Initialize the prices with market_value as the default
             updatePrices('market_value');
-    
+
             // Toggle column visibility (Materials)
             $('.toggle-column').on('click', function() {
                 var column = table.column($(this).attr('data-column'));
                 column.visible(!column.visible());
-    
+
                 // Toggle the button's active state
                 $(this).toggleClass('active');
                 $(this).attr('aria-pressed', $(this).hasClass('active'));
-    
+
                 // Adjust table layout after toggling columns
                 table.columns.adjust().draw(); // Adjust and redraw the table
             });
-    
+
             // Toggle row visibility (Tiers)
             $('.toggle-row').on('click', function() {
                 var tier = $(this).attr('data-tier');
                 $('tr[data-tier="' + tier + '"]').toggle();
-    
+
                 // Toggle the button's active state
                 $(this).toggleClass('active');
                 $(this).attr('aria-pressed', $(this).hasClass('active'));
             });
         });
+
     </script>
 </html>    
