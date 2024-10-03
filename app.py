@@ -1,7 +1,7 @@
 import datetime
 import json
 
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 from utils import load_xmute_commodities, get_item_name_by_id
 
 from bnet_auth_api import BnetAuthApi
@@ -66,26 +66,28 @@ def home():
 # Route to check the token status
 @app.route('/istokenvalid')
 def token():
-    return bnet_auth.is_token_valid()
+    print("- token route accessed -")
+    token_valid = bnet_auth.is_token_valid()
+    return jsonify({'valid': token_valid})
 
 # Route to refresh the token
-@app.route('/refresh')
+@app.route('/refreshtoken')
 def refresh():
     bnet_auth.refresh_token()
-    return "Token refreshed"
+    return jsonify({'message': 'Token refreshed'})
 
 # Route to update the database
-@app.route('/update')
+@app.route('/refreshdatabase')
 def update():
     # Fetch the commodities data from the WoW API
-    commodities_data = BnetAhApi.get_commodities_db()
+    commodities_data = bnet.get_commodities_db()
 
     # Update the database with the commodities data
     db_handler.update_ah_snapshot(commodities_data)
     db_handler.store_tracked_items( load_xmute_commodities() )
     db_handler.update_tracked_items_summary()
 
-    return "Database updated"
+    return jsonify({'message': 'Database updated'})
 
 # print tracked items summary
 print(db_handler.get_tracked_items_summary())
@@ -107,4 +109,4 @@ if __name__ == "__main__":
 
 
     # Run the Flask app
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

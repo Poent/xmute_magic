@@ -47,6 +47,8 @@
         <h1>
             WoW Transmutation Calculator
             <button id="auth-status" class="btn btn-sm btn-secondary ml-3">Checking token...</button>
+            <!-- Button to refresh the database -->
+            <button id="refresh-database" class="btn btn-sm btn-primary ml-3">Refresh Database</button>
         </h1>
             
 
@@ -143,15 +145,43 @@
             function checkTokenStatus() {
                 $.get('/istokenvalid', function(response) {
                     // Update the text or button color based on the token validity
-                    if (response) {
+                    console.log(response);
+                    if (response.valid) {
                         $('#auth-status').text('Token Valid').removeClass('btn-secondary').addClass('btn-success');
                     } else {
                         $('#auth-status').text('Token Invalid').removeClass('btn-secondary').addClass('btn-danger');
                     }
-                }).fail(function() {
+                }).fail(function(jqXHR, textStatus, errorThrown) {
                     // In case of an error in the request
+                    console.error('Error checking token:', textStatus, errorThrown);
                     $('#auth-status').text('Error Checking Token').removeClass('btn-secondary').addClass('btn-danger');
                 });
+            }
+
+            function refreshDatabase() {
+                // change button text to "Refreshing..."
+                $('#refresh-database').text('Refreshing...');
+
+                // Send a GET request to the refreshdatabase route
+                $.get('/refreshdatabase', function(response) {
+                    console.log(response);
+                    if (response.message === 'Database updated') {
+                        alert('Database refreshed successfully!');
+                    } else {
+                        alert('Error refreshing database!');
+                    }
+                    // Reset button text
+                    $('#refresh-database').text('Refresh Database');
+                }).fail(function(jqXHR, textStatus, errorThrown) {
+                    console.error('Error refreshing database:', textStatus, errorThrown);
+                    alert('Error refreshing database!');
+                    // Reset button text
+                    $('#refresh-database').text('Refresh Database');
+                });
+
+                // refresh the table after updating the database
+                $('#commodities-table').DataTable().ajax.reload();
+                
             }
 
             // Call the token check function when the page loads
@@ -190,6 +220,11 @@
                 updatePrices(selectedPriceType); // Update prices
             });
 
+            // Listen to refresh database button click event
+            $('#refresh-database').on('click', function() {
+                refreshDatabase();
+            });
+
             // Initialize the prices with market_value as the default
             updatePrices('market_value');
 
@@ -216,6 +251,6 @@
                 $(this).attr('aria-pressed', $(this).hasClass('active'));
             });
         });
-
     </script>
-</html>    
+</body>
+</html>
