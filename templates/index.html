@@ -56,34 +56,48 @@
         <div class="card">
             <h2>Current AH Price List</h2>
 
-            <!-- Radio buttons to switch between market_value and min_unit_price -->
-            <div class="controls">
-                <h3>Price Type:</h3>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="priceType" id="market_value" value="market_value" checked>
-                    <label class="form-check-label" for="market_value">Market Value</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="priceType" id="min_unit_price" value="min_unit_price">
-                    <label class="form-check-label" for="min_unit_price">Min Unit Price</label>
-                </div>
-            </div>
+               <!-- Row for Price Type, Toggle Materials, and Toggle Tiers -->
+                <div class="row">
+                    <!-- Left column: Price Type and Toggle Tiers stacked -->
+                    <div class="col-md-6">
+                        <!-- Price Type -->
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <h3>Price Type:</h3>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="priceType" id="market_value" value="market_value" checked>
+                                    <label class="form-check-label" for="market_value">Market Value</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="priceType" id="min_unit_price" value="min_unit_price">
+                                    <label class="form-check-label" for="min_unit_price">Min Unit Price</label>
+                                </div>
+                            </div>
+                        </div>
 
-            <!-- Controls to hide/show materials (columns) -->
-            <div class="controls">
-                <h3>Toggle Materials:</h3>
-                {% for item_name in grouped_items %}
-                    <button class="toggle-column btn btn-outline-primary btn-sm active" data-column="{{ loop.index }}" aria-pressed="true">{{ item_name }}</button>
-                {% endfor %}
-            </div>
+                        <!-- Toggle Tiers -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h3>Toggle Tiers:</h3>
+                                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T1" aria-pressed="true">Toggle T1</button>
+                                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T2" aria-pressed="true">Toggle T2</button>
+                                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T3" aria-pressed="true">Toggle T3</button>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- Controls to hide/show tiers (rows) -->
-            <div class="controls">
-                <h3>Toggle Tiers:</h3>
-                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T1" aria-pressed="true">Toggle T1</button>
-                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T2" aria-pressed="true">Toggle T2</button>
-                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T3" aria-pressed="true">Toggle T3</button>
-            </div>
+                    <!-- Right column: Toggle Materials -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3>Toggle Materials:</h3>
+                                {% for item_name in grouped_items %}
+                                    <button class="toggle-column btn btn-outline-primary btn-sm active" data-column="{{ loop.index }}" aria-pressed="true">{{ item_name }}</button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             <!-- Table for commodities -->
             <div class="table-responsive">
