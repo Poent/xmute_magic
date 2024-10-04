@@ -89,6 +89,35 @@ def update():
 
     return jsonify({'message': 'Database updated'})
 
+@app.route('/getupdateddata')
+def get_updated_data():
+    # Load xmute_commodities data from JSON
+    xmute_data = load_xmute_commodities()
+
+    # Fetch the tracked items summary from the database
+    tracked_items_summary = db_handler.get_tracked_items_summary()
+
+    # Map item_id to summary data for easy lookup
+    item_summary_by_id = {item['item_id']: item for item in tracked_items_summary}
+
+    # Organize the data into a dictionary with tiers and matched auction house data
+    grouped_items = {}
+
+    for item in xmute_data:
+        item_name = item['item_name']
+        tiers = item.get('tiers', [])
+        
+        # Find corresponding auction house data for each tier using item_id
+        grouped_items[item_name] = {
+            'T1': item_summary_by_id.get(tiers[0]['item_id'], None) if len(tiers) > 0 else None,
+            'T2': item_summary_by_id.get(tiers[1]['item_id'], None) if len(tiers) > 1 else None,
+            'T3': item_summary_by_id.get(tiers[2]['item_id'], None) if len(tiers) > 2 else None,
+        }
+
+    return jsonify(grouped_items)
+
+
+
 # print tracked items summary
 print(db_handler.get_tracked_items_summary())
 

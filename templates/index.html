@@ -158,8 +158,44 @@
                 });
             }
 
+            function updateTableFromServer() {
+                // Fetch the updated data from the server
+                $.get('/getupdateddata', function(data) {
+                    var table = $('#commodities-table').DataTable();
+                    table.clear(); // Clear the existing data
+
+                    // Iterate over the data (each item is a column, each tier is a row)
+                    var items = Object.keys(data);  // Get the list of item names for the columns
+                    
+                    // Create rows for each tier (T1, T2, T3)
+                    var rowT1 = ["T1"];  // Row for T1
+                    var rowT2 = ["T2"];  // Row for T2
+                    var rowT3 = ["T3"];  // Row for T3
+
+                    // For each item, add the corresponding tier data to each row
+                    items.forEach(function(item_name) {
+                        var tiers = data[item_name];
+
+                        // For each row, push the correct tier value or 'N/A' if not available
+                        rowT1.push(tiers.T1 ? (tiers.T1.market_value / 10000).toFixed(2) + " g" : 'N/A');
+                        rowT2.push(tiers.T2 ? (tiers.T2.market_value / 10000).toFixed(2) + " g" : 'N/A');
+                        rowT3.push(tiers.T3 ? (tiers.T3.market_value / 10000).toFixed(2) + " g" : 'N/A');
+                    });
+
+                    // Now, add each row to the DataTable
+                    table.row.add(rowT1).draw();
+                    table.row.add(rowT2).draw();
+                    table.row.add(rowT3).draw();
+                }).fail(function(jqXHR, textStatus, errorThrown) {
+                    console.error('Error fetching updated data:', textStatus, errorThrown);
+                    alert('Error fetching updated data!');
+                });
+            }
+
+
+
+
             function refreshDatabase() {
-                // change button text to "Refreshing..."
                 $('#refresh-database').text('Refreshing...');
 
                 // Send a GET request to the refreshdatabase route
@@ -167,21 +203,17 @@
                     console.log(response);
                     if (response.message === 'Database updated') {
                         alert('Database refreshed successfully!');
+                        // Fetch the updated data from the server and refresh the table
+                        updateTableFromServer();
                     } else {
                         alert('Error refreshing database!');
                     }
-                    // Reset button text
                     $('#refresh-database').text('Refresh Database');
                 }).fail(function(jqXHR, textStatus, errorThrown) {
                     console.error('Error refreshing database:', textStatus, errorThrown);
                     alert('Error refreshing database!');
-                    // Reset button text
                     $('#refresh-database').text('Refresh Database');
                 });
-
-                // refresh the table after updating the database
-                $('#commodities-table').DataTable().ajax.reload();
-                
             }
 
             // Call the token check function when the page loads
