@@ -40,6 +40,10 @@
         .btn {
             margin: 5px;
         }
+        .toggle-group.active {
+            background-color: #6c757d; /* Change to your desired active color */
+            color: white;
+        }
         .dataTables_wrapper {
             overflow-x: auto;
         }
@@ -52,6 +56,9 @@
             <button id="auth-status" class="btn btn-sm btn-secondary ml-3">Checking token...</button>
             <!-- Button to refresh the database -->
             <button id="refresh-database" class="btn btn-sm btn-primary ml-3">Refresh Database</button>
+            
+            <!-- Add class="last-updated" to the span -->
+            <span class="ml-3 last-updated" style="font-size: 1rem;">Last Updated: {{ last_updated }}</span>
         </h1>
             
 
@@ -89,16 +96,38 @@
                         </div>
                     </div>
 
-                    <!-- Right column: Toggle Materials -->
+                    <!-- Right column: Toggle Materials and Transmutagen Groups -->
                     <div class="col-md-6">
+                        <!-- Toggle Materials -->
                         <div class="card">
                             <div class="card-body">
                                 <h3>Toggle Materials:</h3>
+                                <!-- Reset Button -->
+                                <button id="reset-materials" class="btn btn-outline-secondary btn-sm">Reset</button>
+                                <!-- Material Buttons -->
                                 {% for item_name in grouped_items %}
-                                    <button class="toggle-column btn btn-outline-primary btn-sm active" data-column="{{ loop.index }}" aria-pressed="true">{{ item_name }}</button>
+                                    {% set group = material_groups.get(item_name, '') %}
+                                    <button class="toggle-column btn btn-outline-primary btn-sm active"
+                                            data-column="{{ loop.index0 + 1 }}"
+                                            data-group="{{ group }}"
+                                            aria-pressed="true">{{ item_name }}</button>
                                 {% endfor %}
                             </div>
                         </div>
+
+                        <!-- Transmutagen Groups -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h3>Transmutagen Groups:</h3>
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Mercurial">Mercurial Transmutagen</button>
+                                    <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Ominous">Ominous Transmutagen</button>
+                                    <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Volatile">Volatile Transmutagen</button>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
 
@@ -176,33 +205,98 @@
             }
 
             function updateTableFromServer() {
+                console.log("Updating table with data from server...");
+
                 // Fetch the updated data from the server
-                $.get('/getupdateddata', function(data) {
-                    var table = $('#commodities-table').DataTable();
-                    table.clear(); // Clear the existing data
+                $.get('/getupdateddata', function(response) {
+                    try {
+                        console.log("Data received from server:", response);
 
-                    // Iterate over the data (each item is a column, each tier is a row)
-                    var items = Object.keys(data);  // Get the list of item names for the columns
-                    
-                    // Create rows for each tier (T1, T2, T3)
-                    var rowT1 = ["T1"];  // Row for T1
-                    var rowT2 = ["T2"];  // Row for T2
-                    var rowT3 = ["T3"];  // Row for T3
+                        var grouped_items = response.grouped_items;
+                        var material_groups = response.material_groups;
 
-                    // For each item, add the corresponding tier data to each row
-                    items.forEach(function(item_name) {
-                        var tiers = data[item_name];
+                        var table = $('#commodities-table').DataTable();
+                        table.clear(); // Clear the existing data
 
-                        // For each row, push the correct tier value or 'N/A' if not available
-                        rowT1.push(tiers.T1 ? (tiers.T1.market_value / 10000).toFixed(2) + " g" : 'N/A');
-                        rowT2.push(tiers.T2 ? (tiers.T2.market_value / 10000).toFixed(2) + " g" : 'N/A');
-                        rowT3.push(tiers.T3 ? (tiers.T3.market_value / 10000).toFixed(2) + " g" : 'N/A');
-                    });
+                        // Iterate over the data (each item is a column, each tier is a row)
+                        var items = Object.keys(grouped_items);  // Get the list of item names for the columns
 
-                    // Now, add each row to the DataTable
-                    table.row.add(rowT1).draw();
-                    table.row.add(rowT2).draw();
-                    table.row.add(rowT3).draw();
+                        // Variable to store the latest 'last_updated' value
+                        var lastUpdated = null;
+
+                        // Prepare data for each tier
+                        var tiersData = {
+                            'T1': [],
+                            'T2': [],
+                            'T3': []
+                        };
+
+                        // For each item, collect data for each tier
+                        items.forEach(function(item_name) {
+                            var tiers = grouped_items[item_name];
+
+                            // Update the 'lastUpdated' variable if we find a newer timestamp
+                            console.log("Updating item: ", item_name);
+                            ['T1', 'T2', 'T3'].forEach(function(tier) {
+                                if (tiers[tier] && tiers[tier].last_updated) {
+                                    if (!lastUpdated || new Date(tiers[tier].last_updated) > new Date(lastUpdated)) {
+                                        lastUpdated = tiers[tier].last_updated;
+                                    }
+                                }
+                            });
+
+                            // For each tier, push the data into the corresponding array
+                            ['T1', 'T2', 'T3'].forEach(function(tier) {
+                                var priceCell = tiers[tier] ? '<span class="price" data-market_value="' + (tiers[tier].market_value / 10000).toFixed(2) + '" data-min_unit_price="' + (tiers[tier].min_unit_price / 10000).toFixed(2) + '">' + (tiers[tier].market_value / 10000).toFixed(2) + ' g</span>' : 'N/A';
+                                tiersData[tier].push(priceCell);
+                            });
+                        });
+
+                        // Now, add each tier row to the DataTable with the necessary classes and data attributes
+                        // First, add the "Tier" cell at the beginning of each row
+                        var rowDataT1 = ['T1'].concat(tiersData['T1']);
+                        var rowDataT2 = ['T2'].concat(tiersData['T2']);
+                        var rowDataT3 = ['T3'].concat(tiersData['T3']);
+
+                        // Add rows with row-specific options
+                        table.row.add(rowDataT1).node().className = 'tier-row';
+                        $(table.row(':last').node()).attr('data-tier', 'T1');
+
+                        table.row.add(rowDataT2).node().className = 'tier-row';
+                        $(table.row(':last').node()).attr('data-tier', 'T2');
+
+                        table.row.add(rowDataT3).node().className = 'tier-row';
+                        $(table.row(':last').node()).attr('data-tier', 'T3');
+
+                        // Redraw the table
+                        table.draw();
+
+                        console.log("Table updated successfully!");
+                        console.log("Last Updated: ", lastUpdated);
+
+                        // Update the 'Last Updated' field
+                        if (lastUpdated) {
+                            var date = new Date(lastUpdated * 1000); // Convert to milliseconds
+
+                            var options = {
+                                year: 'numeric', month: 'long', day: 'numeric',
+                                hour: 'numeric', minute: 'numeric', second: 'numeric',
+                                timeZoneName: 'short'
+                            };
+
+                            var formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+
+                            $('.last-updated').text('Last Updated: ' + formattedDate);
+                        }
+
+                        // After updating the table, update the prices based on selected price type
+                        var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
+                        updatePrices(selectedPriceType);
+
+                    } catch (error) {
+                        console.error('Error updating table:', error);
+                        alert('Error updating table!');
+                    }
                 }).fail(function(jqXHR, textStatus, errorThrown) {
                     console.error('Error fetching updated data:', textStatus, errorThrown);
                     alert('Error fetching updated data!');
@@ -212,37 +306,19 @@
 
 
 
-            function refreshDatabase() {
-                $('#refresh-database').text('Refreshing...');
-
-                // Send a GET request to the refreshdatabase route
-                $.get('/refreshdatabase', function(response) {
-                    console.log(response);
-                    if (response.message === 'Database updated') {
-                        alert('Database refreshed successfully!');
-                        // Fetch the updated data from the server and refresh the table
-                        updateTableFromServer();
-                    } else {
-                        alert('Error refreshing database!');
-                    }
-                    $('#refresh-database').text('Refresh Database');
-                }).fail(function(jqXHR, textStatus, errorThrown) {
-                    console.error('Error refreshing database:', textStatus, errorThrown);
-                    alert('Error refreshing database!');
-                    $('#refresh-database').text('Refresh Database');
-                });
-            }
-
             // Call the token check function when the page loads
             checkTokenStatus();
 
             // Optionally, you can refresh the token status every 30 seconds
             setInterval(checkTokenStatus, 30000); // 30 seconds
 
+            // update the table
+            updateTableFromServer();
+
             // Existing DataTable initialization
             var table = $('#commodities-table').DataTable({
                 "paging": false,
-                "searching": true,
+                "searching": false,
                 "ordering": true,
                 "colReorder": true, // Enables column resizing
                 "autoWidth": false // Disable automatic width calculation
@@ -273,6 +349,61 @@
             $('#refresh-database').on('click', function() {
                 refreshDatabase();
             });
+
+
+            // Toggle group functionality
+            $('.toggle-group').on('click', function() {
+                var groupName = $(this).attr('data-group');
+
+                // Remove 'active' class from all group buttons
+                $('.toggle-group').removeClass('active').attr('aria-pressed', false);
+
+                // Add 'active' class to the clicked button
+                $(this).addClass('active').attr('aria-pressed', true);
+
+                // Deactivate all material buttons
+                $('.toggle-column').removeClass('active').attr('aria-pressed', false);
+
+                // Hide all columns except the first one ("Tier")
+                table.columns().every(function(index) {
+                    if (index > 0) { // Exclude the first column
+                        table.column(index).visible(false);
+                    }
+                });
+
+                // Activate and show columns for materials in the selected group
+                $('.toggle-column[data-group="' + groupName + '"]').each(function() {
+                    // Activate the material button
+                    $(this).addClass('active').attr('aria-pressed', true);
+
+                    // Get the column index
+                    var columnIndex = parseInt($(this).attr('data-column'), 10);
+
+                    // Show the column
+                    table.column(columnIndex).visible(true);
+                });
+
+                // Adjust the table layout
+                table.columns.adjust().draw();
+            });
+
+            // Reset materials functionality
+            $('#reset-materials').on('click', function() {
+                // Deactivate all group buttons
+                $('.toggle-group').removeClass('active').attr('aria-pressed', false);
+
+                // Activate all material buttons
+                $('.toggle-column').addClass('active').attr('aria-pressed', true);
+
+                // Show all columns
+                table.columns().every(function(index) {
+                    table.column(index).visible(true);
+                });
+
+                // Adjust the table layout
+                table.columns.adjust().draw();
+            });
+
 
             // Initialize the prices with market_value as the default
             updatePrices('market_value');

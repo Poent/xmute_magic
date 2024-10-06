@@ -1,12 +1,16 @@
 import datetime
 import json
+import logging
+import logging.config
 
-from flask import Flask, render_template, jsonify
-from utils import load_xmute_commodities, get_item_name_by_id
+from flask import Flask, jsonify, render_template
 
-from bnet_auth_api import BnetAuthApi
-from bnet_ah_api import BnetAhApi
 from auction_database import AuctionDatabase
+from bnet_ah_api import BnetAhApi
+from bnet_auth_api import BnetAuthApi
+from utils import get_item_name_by_id, load_xmute_commodities
+
+logging.basicConfig(level=logging.INFO)
 
 # Load the client_id and client_secret from the auth.json file
 try:
@@ -34,34 +38,47 @@ bnet = BnetAhApi(bnet_auth, db_handler)
 def datetimeformat(value):
     return datetime.datetime.fromtimestamp(value).strftime('%Y-%m-%d %H:%M:%S')
 
-@app.route('/')
-def home():
-    print("- home route accessed -")
+# Define the material to group mapping (Moved outside the function to reuse)
+material_groups = {
+    "Arathor's Spear": "Mercurial",
+    "Blessing Blossom": "Mercurial",
+    "Ironclaw Ore": "Mercurial",
+    "Stormcharged Leather": "Mercurial",
+    "Aqirite": "Ominous",
+    "Gloom Chitin": "Ominous",
+    "Luredrop": "Ominous",
+    "Orbinid": "Ominous",
+    "Bismuth": "Volatile",
+    "Mycobloom": "Volatile",
+    "Storm Dust": "Volatile",
+    "Weavercloth": "Volatile",
+    # Include other materials if necessary
+}
 
-    # Load xmute_commodities data from JSON
+
+def get_grouped_items():
     xmute_data = load_xmute_commodities()
-
-    # Fetch the tracked items summary from the database
     tracked_items_summary = db_handler.get_tracked_items_summary()
-
-    # Map item_id to summary data for easy lookup
     item_summary_by_id = {item['item_id']: item for item in tracked_items_summary}
 
-    # Organize the data into a dictionary with tiers and matched auction house data
     grouped_items = {}
-
     for item in xmute_data:
         item_name = item['item_name']
         tiers = item.get('tiers', [])
-        
-        # Find corresponding auction house data for each tier using item_id
-        grouped_items[item_name] = {
-            'T1': item_summary_by_id.get(tiers[0]['item_id'], None) if len(tiers) > 0 else None,
-            'T2': item_summary_by_id.get(tiers[1]['item_id'], None) if len(tiers) > 1 else None,
-            'T3': item_summary_by_id.get(tiers[2]['item_id'], None) if len(tiers) > 2 else None,
-        }
+        tier_data = {}
+        for idx, tier in enumerate(tiers):
+            tier_key = f'T{idx + 1}'
+            tier_data[tier_key] = item_summary_by_id.get(tier['item_id'], None)
+        grouped_items[item_name] = tier_data
+    return grouped_items
 
-    return render_template('index.html', grouped_items=grouped_items)
+
+@app.route('/')
+def home():
+    logging.info("Home route accessed")
+    grouped_items = get_grouped_items()
+    return render_template('index.html', grouped_items=grouped_items, material_groups=material_groups)
+
 
 # Route to check the token status
 @app.route('/istokenvalid')
@@ -84,44 +101,28 @@ def update():
 
     # Update the database with the commodities data
     db_handler.update_ah_snapshot(commodities_data)
-    db_handler.store_tracked_items( load_xmute_commodities() )
+    db_handler.store_tracked_items(load_xmute_commodities())
     db_handler.update_tracked_items_summary()
 
     return jsonify({'message': 'Database updated'})
 
 @app.route('/getupdateddata')
 def get_updated_data():
-    # Load xmute_commodities data from JSON
-    xmute_data = load_xmute_commodities()
 
-    # Fetch the tracked items summary from the database
-    tracked_items_summary = db_handler.get_tracked_items_summary()
+    grouped_items = get_grouped_items()
 
-    # Map item_id to summary data for easy lookup
-    item_summary_by_id = {item['item_id']: item for item in tracked_items_summary}
+    # Return both grouped_items and material_groups as a single JSON object
+    return jsonify({
+        'grouped_items': grouped_items,
+        'material_groups': material_groups
+    })
 
-    # Organize the data into a dictionary with tiers and matched auction house data
-    grouped_items = {}
-
-    for item in xmute_data:
-        item_name = item['item_name']
-        tiers = item.get('tiers', [])
-        
-        # Find corresponding auction house data for each tier using item_id
-        grouped_items[item_name] = {
-            'T1': item_summary_by_id.get(tiers[0]['item_id'], None) if len(tiers) > 0 else None,
-            'T2': item_summary_by_id.get(tiers[1]['item_id'], None) if len(tiers) > 1 else None,
-            'T3': item_summary_by_id.get(tiers[2]['item_id'], None) if len(tiers) > 2 else None,
-        }
-
-    return jsonify(grouped_items)
-
-
-
-# print tracked items summary
+# Print tracked items summary
 print(db_handler.get_tracked_items_summary())
 
 if __name__ == "__main__":
+
+    logging.info("Starting the Flask app")
 
     # Fetch the commodities data from the WoW API
     commodities_data = bnet.get_commodities_db()
@@ -129,13 +130,11 @@ if __name__ == "__main__":
     # Update the database with the commodities data
     db_handler.update_ah_snapshot(commodities_data)
 
-    # store tracked items (extract them from the commodities data snapshot)
+    # Store tracked items (extract them from the commodities data snapshot)
     db_handler.store_tracked_items(load_xmute_commodities())
 
-    # update the tracked items summary
+    # Update the tracked items summary
     db_handler.update_tracked_items_summary()
-
-
 
     # Run the Flask app
     app.run(debug=True, port=5001)
