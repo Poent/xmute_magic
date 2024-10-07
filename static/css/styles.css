@@ -1,0 +1,34 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+}
+th {
+    background-color: #333;
+    color: white;
+}
+.controls {
+    margin-bottom: 15px;
+}
+.card {
+    margin-top: 5px;
+    padding: 5px;
+    width: 100%;
+}
+.card-body {
+    padding: 5px;
+}
+.btn {
+    margin: 5px;
+}
+.toggle-group.active {
+    background-color: #6c757d; /* Change to your desired active color */
+    color: white;
+}
+.dataTables_wrapper {
+    overflow-x: auto;
+}

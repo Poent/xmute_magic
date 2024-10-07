@@ -137,4 +137,4 @@ if __name__ == "__main__":
     db_handler.update_tracked_items_summary()
 
     # Run the Flask app
-    app.run(debug=True, port=5001)
+    app.run(port=5001)
