@@ -19,14 +19,22 @@
     }
 
     // Function to refresh the database
-    function refreshDatabase() {
+    function refreshDatabase(callback) {
         $.get('/refreshdatabase', function(response) {
             alert(response.message);
             // Optionally, refresh the table data
             updateTableFromServer();
+            // Call the callback function with success status
+            if (callback) {
+                callback(true);
+            }
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.error('Error refreshing database:', textStatus, errorThrown);
             alert('Error refreshing database!');
+            // Call the callback function with failure status
+            if (callback) {
+                callback(false);
+            }
         });
     }
 
@@ -199,12 +207,16 @@
             // Update the button text to show the loading state
             $this.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
             // Call the refreshDatabase function with a callback
-            refreshDatabase(function() {
-                // Reset the button text after the process is complete
-                $this.text('Refresh Database');
+            refreshDatabase(function(success) {
+                if (success) {
+                    // Reset the button text to "Refresh Database" on success
+                    $this.text('Refresh Database');
+                } else {
+                    // Reset the button text to "Retry" on failure
+                    $this.text('Retry');
+                }
             });
         });
-
 
         // Toggle group functionality
         $('.toggle-group').on('click', function() {
