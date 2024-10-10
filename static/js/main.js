@@ -1,9 +1,16 @@
 'use strict';
 
-(function() {
+(
+    
+    
+    
+    function() {
+
+
+
     // Function to check the token status
     function checkTokenStatus() {
-        $.get('/istokenvalid', function(response) {
+        $.get('/token/status', function(response) {
             // Update the text or button color based on the token validity
             console.log(response);
             if (response.valid) {
@@ -20,13 +27,20 @@
 
     // Function to refresh the database
     function refreshDatabase(callback) {
-        $.get('/refreshdatabase', function(response) {
-            alert(response.message);
-            // Optionally, refresh the table data
-            updateTableFromServer();
+        $.get('/database/refresh', function(response) {
             // Call the callback function with success status
-            if (callback) {
-                callback(true);
+            if (response.success) {
+                updateTableFromServer();
+                alert(response.message);
+                if (callback) {
+                    callback(true);
+                }
+            } else {
+                console.error('Error refreshing database:', response.message);
+                alert('Error refreshing database!');
+                if (callback) {
+                    callback(false);
+                }
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.error('Error refreshing database:', textStatus, errorThrown);
@@ -58,7 +72,7 @@
         console.log('Updating table with data from server...');
 
         // Fetch the updated data from the server
-        $.get('/getupdateddata', function(response) {
+        $.get('/database/summary', function(response) {
             try {
                 console.log('Data received from server:', response);
 

@@ -55,7 +55,7 @@ material_groups = {
     # Include other materials if necessary
 }
 
-
+# function to group the items by material
 def get_grouped_items():
     xmute_data = load_xmute_commodities()
     tracked_items_summary = db_handler.get_tracked_items_summary()
@@ -72,50 +72,75 @@ def get_grouped_items():
         grouped_items[item_name] = tier_data
     return grouped_items
 
+# function to return just the xmute data
+def get_xmute_data():
+    xmute_data = load_xmute_commodities()
+    return xmute_data
 
+# Default route
 @app.route('/')
 def home():
     logging.info("Home route accessed")
     grouped_items = get_grouped_items()
-    return render_template('index.html', grouped_items=grouped_items, material_groups=material_groups)
-
+    xmute_data = get_xmute_data()
+    # pass the grouped items and material groups to the template, along with the xmute data
+    # we should actually handle all of this with javascript and make the information available via an API
+    return render_template(
+        'index.html', 
+        grouped_items=grouped_items,
+        material_groups=material_groups, 
+        xmute_data=xmute_data
+    )
 
 # Route to check the token status
-@app.route('/istokenvalid')
-def token():
-    print("- token route accessed -")
+@app.route('/token/status', methods=['GET'])
+def token_status():
+    logging.info("Token status route accessed")
     token_valid = bnet_auth.is_token_valid()
     return jsonify({'valid': token_valid})
 
 # Route to refresh the token
-@app.route('/refreshtoken')
-def refresh():
-    bnet_auth.refresh_token()
+@app.route('/token/refresh', methods=['POST'])
+def refresh_token():
+    logging.info("Token refresh route accessed")
+    if not bnet_auth.refresh_token():
+        return jsonify({'message': 'Failed to refresh token'}), 500
     return jsonify({'message': 'Token refreshed'})
 
+
+
 # Route to update the database
-@app.route('/refreshdatabase')
-def update():
-    # Fetch the commodities data from the WoW API
-    commodities_data = bnet.get_commodities_db()
+@app.route('/database/refresh', methods=['GET'])
+def refresh_database():
+    logging.info("Database refresh route accessed")
+    try:
+        # Fetch the commodities data from the WoW API
+        commodities_data = bnet.get_commodities_db()
+        # Update the database with the commodities data
+        db_handler.update_ah_snapshot(commodities_data)
+        db_handler.store_tracked_items(load_xmute_commodities())
+        db_handler.update_tracked_items_summary()
+        return jsonify({'success': True, 'message': 'Database updated'})
+    except Exception as e:
+        logging.error(f"Error refreshing database: {e}")
+        return jsonify({'success': False, 'message': 'Error refreshing database'}), 500
 
-    # Update the database with the commodities data
-    db_handler.update_ah_snapshot(commodities_data)
-    db_handler.store_tracked_items(load_xmute_commodities())
-    db_handler.update_tracked_items_summary()
-
-    return jsonify({'message': 'Database updated'})
-
-@app.route('/getupdateddata')
-def get_updated_data():
-
+# Route to get the summary data of the tracked items from the database
+@app.route('/database/summary', methods=['GET'])
+def database_summary():
+    logging.info("Database summary route accessed")
     grouped_items = get_grouped_items()
-
-    # Return both grouped_items and material_groups as a single JSON object
     return jsonify({
         'grouped_items': grouped_items,
         'material_groups': material_groups
     })
+
+# Route to get the xmute_data json
+@app.route('/xmute_data', methods=['GET'])
+def database_xmute_data():
+    logging.info("Database xmute data route accessed")
+    xmute_data = get_xmute_data()
+    return jsonify(xmute_data)
 
 # Print tracked items summary
 print(db_handler.get_tracked_items_summary())

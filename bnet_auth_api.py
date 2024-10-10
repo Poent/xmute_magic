@@ -32,13 +32,18 @@ class BnetAuthApi:
     def refresh_token(self):
         """Refresh the token."""
         print("Refreshing token...")
-        self.token = self.oauth.fetch_token(
-            'https://oauth.battle.net/token',
-            grant_type='client_credentials',
-            client_id=self.client_id,
-            client_secret=self.client_secret
-        )
-        self.save_token(self.token, self.token_file)
+        try:
+            self.token = self.oauth.fetch_token(
+                'https://oauth.battle.net/token',
+                grant_type='client_credentials',
+                client_id=self.client_id,
+                client_secret=self.client_secret
+            )
+            self.save_token(self.token, self.token_file)
+            return True
+        except Exception as e:
+            print(f"Failed to refresh token: {e}")
+            return False
 
     @staticmethod
     def load_token(filename):

@@ -209,7 +209,7 @@ class AuctionDatabase:
 
                 # Calculate market value based on lowest 30% prices, ignoring large jumps
                 sorted_prices = sorted(price_list)
-                cutoff_index = max(1, len(sorted_prices) // 3)  # Take at least one auction for small sets
+                cutoff_index = max(1, len(sorted_prices) // 6)  # Take at least one auction for small sets
                 filtered_prices = sorted_prices[:cutoff_index]
 
                 # Further filter out large price jumps

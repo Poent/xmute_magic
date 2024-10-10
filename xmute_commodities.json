@@ -10,7 +10,8 @@
           "transmutations": [
               { "material": "Gloom Chitin", "result_chance": 0.16 },
               { "material": "Luredrop", "result_chance": 0.16 },
-              { "material": "Orbinid", "result_chance": 0.16 }
+              { "material": "Orbinid", "result_chance": 0.16 },
+              { "material": "Ominous Transmutation", "result_chance": 0.16 }
           ]
       },
       {
@@ -23,7 +24,8 @@
           "transmutations": [
               { "material": "Ironclaw Ore", "result_chance": 0.16 },
               { "material": "Blessing Blossom", "result_chance": 0.16 },
-              { "material": "Stormcharged Leather", "result_chance": 0.16 }
+              { "material": "Stormcharged Leather", "result_chance": 0.16 },
+              { "material": "Mercurial Transmutation", "result_chance": 0.16 }
           ]
       },
       {
@@ -36,7 +38,8 @@
           "transmutations": [
               { "material": "Mycobloom", "result_chance": 0.16 },
               { "material": "Storm Dust", "result_chance": 0.16 },
-              { "material": "Weavercloth", "result_chance": 0.16 }
+              { "material": "Weavercloth", "result_chance": 0.16 },
+              { "material": "Volatile Transmutation", "result_chance": 0.16 }
           ]
       },
       {
@@ -49,7 +52,8 @@
           "transmutations": [
               { "material": "Arathor's Spear", "result_chance": 0.16 },
               { "material": "Ironclaw Ore", "result_chance": 0.16 },
-              { "material": "Stormcharged Leather", "result_chance": 0.16 }
+              { "material": "Stormcharged Leather", "result_chance": 0.16 },
+              { "material": "Mercurial Transmutation", "result_chance": 0.16 }
           ]
       },
       {
@@ -62,7 +66,8 @@
           "transmutations": [
               { "material": "Aqirite", "result_chance": 0.16 },
               { "material": "Orbinid", "result_chance": 0.16 },
-              { "material": "Luredrop", "result_chance": 0.16 }
+              { "material": "Luredrop", "result_chance": 0.16 },
+              { "material": "Ominous Transmutation", "result_chance": 0.16 }
           ]
       },
       {
@@ -75,7 +80,8 @@
           "transmutations": [
               { "material": "Arathor's Spear", "result_chance": 0.16 },
               { "material": "Blessing Blossom", "result_chance": 0.16 },
-              { "material": "Stormcharged Leather", "result_chance": 0.16 }
+              { "material": "Stormcharged Leather", "result_chance": 0.16 },
+              { "material": "Mercurial Transmutation", "result_chance": 0.16 }
           ]
       },
       {
@@ -88,7 +94,8 @@
           "transmutations": [
               { "material": "Aqirite", "result_chance": 0.16 },
               { "material": "Gloom Chitin", "result_chance": 0.16 },
-              { "material": "Orbinid", "result_chance": 0.16 }
+              { "material": "Orbinid", "result_chance": 0.16 },
+              { "material": "Ominous Transmutation", "result_chance": 0.16 }
           ]
       },
       {
@@ -101,7 +108,8 @@
           "transmutations": [
               { "material": "Bismuth", "result_chance": 0.16 },
               { "material": "Storm Dust", "result_chance": 0.16 },
-              { "material": "Weavercloth", "result_chance": 0.16 }
+              { "material": "Weavercloth", "result_chance": 0.16 },
+              { "material": "Volatile Transmutation", "result_chance": 0.16 }
           ]
       },
       {
@@ -114,7 +122,8 @@
           "transmutations": [
               { "material": "Aqirite", "result_chance": 0.16 },
               { "material": "Gloom Chitin", "result_chance": 0.16 },
-              { "material": "Luredrop", "result_chance": 0.16 }
+              { "material": "Luredrop", "result_chance": 0.16 },
+              { "material": "Ominous Transmutation", "result_chance": 0.16 }
           ]
       },
       {
@@ -127,7 +136,8 @@
           "transmutations": [
               { "material": "Bismuth", "result_chance": 0.16 },
               { "material": "Mycobloom", "result_chance": 0.16 },
-              { "material": "Weavercloth", "result_chance": 0.16 }
+              { "material": "Weavercloth", "result_chance": 0.16 },
+              { "material": "Volatile Transmutation", "result_chance": 0.16 }
           ]
       },
       {
@@ -140,7 +150,8 @@
           "transmutations": [
               { "material": "Arathor's Spear", "result_chance": 0.16 },
               { "material": "Blessing Blossom", "result_chance": 0.16 },
-              { "material": "Ironclaw Ore", "result_chance": 0.16 }
+              { "material": "Ironclaw Ore", "result_chance": 0.16 },
+              { "material": "Mercurial Transmutation", "result_chance": 0.16 }
           ]
       },
       {
@@ -153,7 +164,8 @@
           "transmutations": [
               { "material": "Bismuth", "result_chance": 0.16 },
               { "material": "Mycobloom", "result_chance": 0.16 },
-              { "material": "Storm Dust", "result_chance": 0.16 }
+              { "material": "Storm Dust", "result_chance": 0.16 },
+              { "material": "Volatile Transmutation", "result_chance": 0.16 }
           ]
       }
   ]

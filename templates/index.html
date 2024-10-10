@@ -115,7 +115,7 @@
                         <tr class="tier-row" data-tier="T1">
                             <td>T1</td>
                             {% for item_name, item_tiers in grouped_items.items() %}
-                                <td class="price" data-market_value="{{ item_tiers.T1.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T1.min_unit_price / 10000 }}">
+                                <td contenteditable="true" class="price" data-market_value="{{ item_tiers.T1.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T1.min_unit_price / 10000 }}">
                                     {{ "%.2f" | format(item_tiers.T1.market_value / 10000) }} g
                                 </td>
                             {% endfor %}
@@ -124,7 +124,7 @@
                         <tr class="tier-row" data-tier="T2">
                             <td>T2</td>
                             {% for item_name, item_tiers in grouped_items.items() %}
-                                <td class="price" data-market_value="{{ item_tiers.T2.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T2.min_unit_price / 10000 }}">
+                                <td contenteditable="true" class="price" data-market_value="{{ item_tiers.T2.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T2.min_unit_price / 10000 }}">
                                     {{ "%.2f" | format(item_tiers.T2.market_value / 10000) }} g
                                 </td>
                             {% endfor %}
@@ -133,7 +133,7 @@
                         <tr class="tier-row" data-tier="T3">
                             <td>T3</td>
                             {% for item_name, item_tiers in grouped_items.items() %}
-                                <td class="price" data-market_value="{{ item_tiers.T3.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T3.min_unit_price / 10000 }}">
+                                <td contenteditable="true" class="price" data-market_value="{{ item_tiers.T3.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T3.min_unit_price / 10000 }}">
                                     {{ "%.2f" | format(item_tiers.T3.market_value / 10000) }} g
                                 </td>
                             {% endfor %}
@@ -156,6 +156,9 @@
 
     <!-- In the <body> section for JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+ 
+
 
 </body>
 </html>
