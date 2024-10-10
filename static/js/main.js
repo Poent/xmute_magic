@@ -1,28 +1,33 @@
 'use strict';
 
-(
-    
-    
-    
-    function() {
-
-
+(function() {
+    // Initialize the DataTable variable
+    var table;
 
     // Function to check the token status
     function checkTokenStatus() {
+        var deferred = $.Deferred();
+
         $.get('/token/status', function(response) {
             // Update the text or button color based on the token validity
             console.log(response);
             if (response.valid) {
                 $('#auth-status').text('Token Valid').removeClass('btn-secondary').addClass('btn-success');
+                console.log('Token is valid!');
+                deferred.resolve();
             } else {
                 $('#auth-status').text('Token Invalid').removeClass('btn-secondary').addClass('btn-danger');
+                console.log('Token is invalid!');
+                deferred.reject('Token is invalid');
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
             // In case of an error in the request
             console.error('Error checking token:', textStatus, errorThrown);
             $('#auth-status').text('Error Checking Token').removeClass('btn-secondary').addClass('btn-danger');
+            deferred.reject('Error checking token');
         });
+
+        return deferred.promise();
     }
 
     // Function to refresh the database
@@ -30,9 +35,11 @@
         $.get('/database/refresh', function(response) {
             // Call the callback function with success status
             if (response.success) {
-                updateTableFromServer();
+                // update the table
+                
                 alert(response.message);
                 if (callback) {
+                    console.log('Database refreshed successfully:', response.message);
                     callback(true);
                 }
             } else {
@@ -67,109 +74,63 @@
         });
     }
 
-    // Function to update the table with data from the server
-    function updateTableFromServer() {
-        console.log('Updating table with data from server...');
+    // Function to fetch data and initialize the page
+    function fetchDataAndInitialize() {
 
-        // Fetch the updated data from the server
+        console.log('Fetching data...');
+
         $.get('/database/summary', function(response) {
             try {
-                console.log('Data received from server:', response);
+
+                console.log('Response:', response);
 
                 var grouped_items = response.grouped_items;
+                var material_groups = response.material_groups;
 
-                table.clear(); // Clear the existing data
+                console.log('Grouped items:', grouped_items);
+                console.log('Material groups:', material_groups);
 
-                // Iterate over the data (each item is a column, each tier is a row)
-                var items = Object.keys(grouped_items); // Get the list of item names for the columns
+                // Generate material buttons
+                console.log('Generating material buttons...');
+                generateMaterialButtons(grouped_items, material_groups);
 
-                // Variable to store the latest 'last_updated' value
-                var lastUpdated = null;
+                // Generate table headers
+                console.log('Generating table headers...');
+                generateTableHeaders(grouped_items);
 
-                // Prepare data for each tier
-                var tiersData = {
-                    'T1': [],
-                    'T2': [],
-                    'T3': []
-                };
+                // Generate table rows
+                console.log('Generating table rows...');
+                generateTableRows(grouped_items);
 
-                // For each item, collect data for each tier
-                items.forEach(function(item_name) {
-                    var tiers = grouped_items[item_name];
+                // Attach event listeners
+                console.log('Attaching event listeners...');
+                attachEventListeners();
 
-                    // Update the 'lastUpdated' variable if we find a newer timestamp
-                    console.log('Updating item:', item_name);
-                    ['T1', 'T2', 'T3'].forEach(function(tier) {
-                        if (tiers[tier] && tiers[tier].last_updated) {
-                            if (!lastUpdated || new Date(tiers[tier].last_updated * 1000) > new Date(lastUpdated * 1000)) {
-                                lastUpdated = tiers[tier].last_updated;
-                            }
-                        }
-                    });
+                // Update prices based on selected price type
+                var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
+                updatePrices(selectedPriceType);
 
-                    // For each tier, push the data into the corresponding array
-                    ['T1', 'T2', 'T3'].forEach(function(tier) {
-                        var priceCell = 'N/A';
-                        if (tiers[tier]) {
-                            var marketValue = (tiers[tier].market_value / 10000).toFixed(2);
-                            var minUnitPrice = (tiers[tier].min_unit_price / 10000).toFixed(2);
-                            priceCell =
-                                '<span class="price" data-market_value="' +
-                                marketValue +
-                                '" data-min_unit_price="' +
-                                minUnitPrice +
-                                '">' +
-                                marketValue +
-                                ' g</span>';
-                        }
-                        tiersData[tier].push(priceCell);
-                    });
-                });
+            } catch (error) {
+                console.error('Error initializing data:', error);
+                alert('Error initializing data!');
+            }
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            console.error('Error fetching data:', textStatus, errorThrown);
+            alert('Error fetching data!');
+        });
+    }
 
-                // Now, add each tier row to the DataTable with the necessary classes and data attributes
-                // First, add the "Tier" cell at the beginning of each row
-                var rowDataT1 = ['T1'].concat(tiersData['T1']);
-                var rowDataT2 = ['T2'].concat(tiersData['T2']);
-                var rowDataT3 = ['T3'].concat(tiersData['T3']);
+    // function to update the table with the latest data
+    function updateTable() {
+        $.get('/database/summary', function(response) {
+            try {
+                var grouped_items = response.grouped_items;
+                var material_groups = response.material_groups;
 
-                // Add rows with row-specific options
-                var rowNode;
+                // Update table rows
+                generateTableRows(grouped_items);
 
-                rowNode = table.row.add(rowDataT1).node();
-                $(rowNode).addClass('tier-row').attr('data-tier', 'T1');
-
-                rowNode = table.row.add(rowDataT2).node();
-                $(rowNode).addClass('tier-row').attr('data-tier', 'T2');
-
-                rowNode = table.row.add(rowDataT3).node();
-                $(rowNode).addClass('tier-row').attr('data-tier', 'T3');
-
-                // Redraw the table
-                table.draw();
-
-                console.log('Table updated successfully!');
-                console.log('Last Updated:', lastUpdated);
-
-                // Update the 'Last Updated' field
-                if (lastUpdated) {
-                    var date = new Date(lastUpdated * 1000); // Convert to milliseconds
-
-                    var options = {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                        second: 'numeric',
-                        timeZoneName: 'short'
-                    };
-
-                    var formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
-
-                    $('.last-updated').text('Last Updated: ' + formattedDate);
-                }
-
-                // After updating the table, update the prices based on selected price type
+                // Update prices based on selected price type
                 var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
                 updatePrices(selectedPriceType);
 
@@ -178,51 +139,210 @@
                 alert('Error updating table!');
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.error('Error fetching updated data:', textStatus, errorThrown);
-            alert('Error fetching updated data!');
+            console.error('Error updating table:', textStatus, errorThrown);
+            alert('Error updating table!');
         });
     }
 
-    // Initialize DataTable
-    var table = $('#commodities-table').DataTable({
-        paging: false,
-        searching: false,
-        ordering: true,
-        colReorder: true, // Enables column resizing
-        autoWidth: false // Disable automatic width calculation
-    });
+    // Function to generate material buttons
+    function generateMaterialButtons(grouped_items, material_groups) {
+        var $materialButtons = $('#material-buttons');
+        $materialButtons.empty(); // Clear existing buttons
+    
+        var index = 1; // Start from 1 because the first column is 'Tier'
+    
+        Object.keys(grouped_items).forEach(function(item_name) {
+            var group = material_groups[item_name] || '';
+            var button = $('<button>')
+                .addClass('btn btn-outline-primary btn-sm active')
+                .attr('data-column', index)
+                .attr('data-group', group)
+                .attr('aria-pressed', true)
+                .text(item_name);
+    
+            $materialButtons.append(button);
+    
+            index++;
+        });
+    }
 
-    // Document ready function
-    $(document).ready(function() {
+    // Function to generate table headers
+    function generateTableHeaders(grouped_items) {
+        var $headerRow = $('#commodities-table-header');
+        $headerRow.empty(); // Clear existing headers
 
-        console.log("Document ready!");
+        // Add 'Tier' header
+        $headerRow.append('<th>Tier</th>');
 
-        // Call the token check function when the page loads
-        checkTokenStatus();
+        // Add headers for each item
+        Object.keys(grouped_items).forEach(function(item_name) {
+            $headerRow.append('<th>' + item_name + '</th>');
+        });
+    }
 
-        // Refresh the token status every 30 seconds
-        setInterval(checkTokenStatus, 30000); // 30 seconds
+    // Function to generate table rows
+    function generateTableRows(grouped_items) {
+        console.log('Generating table rows...');
+        var $tableBody = $('#commodities-table-body');
+        
+        // Destroy DataTable before manipulating the DOM
+        if ($.fn.dataTable.isDataTable('#commodities-table')) {
+            $('#commodities-table').DataTable().destroy();
+        }
+    
+        // Clear existing rows
+        console.log('Clearing existing rows...');
+        $tableBody.empty(); 
+    
+        var lastUpdatedTimestamp = null;
+    
+        ['T1', 'T2', 'T3'].forEach(function(tier) {
+            var $row = $('<tr>').addClass('tier-row').attr('data-tier', tier);
+    
+            // Add 'Tier' cell
+            $row.append('<td>' + tier + '</td>');
+    
+            // Add price cells
+            Object.keys(grouped_items).forEach(function(item_name) {
+                var item_tiers = grouped_items[item_name];
+                var itemData = item_tiers[tier];
+                var priceCell = '<td>N/A</td>';
+    
+                if (itemData) {
+                    var marketValue = (itemData.market_value / 10000).toFixed(2);
+                    var minUnitPrice = (itemData.min_unit_price / 10000).toFixed(2);
+                    priceCell =
+                        '<td contenteditable="true" class="price" data-market_value="' +
+                        marketValue +
+                        '" data-min_unit_price="' +
+                        minUnitPrice +
+                        '">' +
+                        marketValue +
+                        ' g</td>';
+    
+                    // Update last updated timestamp
+                    if (itemData.last_updated) {
+                        var itemTimestamp = itemData.last_updated;
+                        if (!lastUpdatedTimestamp || itemTimestamp > lastUpdatedTimestamp) {
+                            lastUpdatedTimestamp = itemTimestamp;
+                        }
+                    }
+                }
+    
+                $row.append(priceCell);
+            });
+    
+            $tableBody.append($row);
+        });
+    
+        // Reinitialize DataTable after the DOM manipulation
+        table = $('#commodities-table').DataTable({
+            paging: false,
+            searching: false,
+            ordering: true,
+            colReorder: false,  // Temporarily disable colReorder if causing issues
+            autoWidth: false,
+            stateSave: false  // Disable state save temporarily
+        });
+    
+        // Update the 'Last Updated' field
+        if (lastUpdatedTimestamp) {
+            var date = new Date(lastUpdatedTimestamp * 1000); // Convert to milliseconds
+    
+            var options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                timeZoneName: 'short'
+            };
+    
+            var formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+    
+            $('.last-updated').text('Last Updated: ' + formattedDate);
+        }
+    }
+    
 
-        // Update the table
-        updateTableFromServer();
+    // Function to attach event listeners
+    function attachEventListeners() {
+        // Price type radio buttons
+        $('input[name="priceType"]').off('change').on('change', function() {
+            var selectedPriceType = $('input[name="priceType"]:checked').val();
+            updatePrices(selectedPriceType);
+        });
 
-        // Initialize the prices with market_value as the default
-        updatePrices('market_value');
+        // Material buttons
+        $('.toggle-column').off('click').on('click', function() {
+            var columnIndex = parseInt($(this).attr('data-column'), 10);
+            var column = table.column(columnIndex);
+            column.visible(!column.visible());
 
-        // Event listener for price type radio buttons
-        $('input[name="priceType"]').on('change', function() {
-            var selectedPriceType = $('input[name="priceType"]:checked').val(); // Get selected value
-            updatePrices(selectedPriceType); // Update prices
+            // Toggle the button's active state
+            $(this).toggleClass('active');
+            $(this).attr('aria-pressed', $(this).hasClass('active'));
+        });
+
+        // Group buttons
+        $('.toggle-group').off('click').on('click', function() {
+            var groupName = $(this).attr('data-group');
+
+            // Deactivate other group buttons
+            $('.toggle-group').removeClass('active').attr('aria-pressed', false);
+
+            // Activate clicked button
+            $(this).addClass('active').attr('aria-pressed', true);
+
+            // Deactivate all material buttons
+            $('.toggle-column').removeClass('active').attr('aria-pressed', false);
+
+            // Hide all columns except 'Tier'
+            table.columns().visible(false);
+            table.column(0).visible(true); // Keep 'Tier' column visible
+
+            // Show columns for materials in the selected group
+            $('.toggle-column[data-group="' + groupName + '"]').each(function() {
+                $(this).addClass('active').attr('aria-pressed', true);
+                var columnIndex = parseInt($(this).attr('data-column'), 10);
+                table.column(columnIndex).visible(true);
+            });
+        });
+
+        // Reset materials button
+        $('#reset-materials').off('click').on('click', function() {
+            // Deactivate group buttons
+            $('.toggle-group').removeClass('active').attr('aria-pressed', false);
+
+            // Activate all material buttons
+            $('.toggle-column').addClass('active').attr('aria-pressed', true);
+
+            // Show all columns
+            table.columns().visible(true);
+        });
+
+        // Tier toggle buttons
+        $('.toggle-row').off('click').on('click', function() {
+            var tier = $(this).attr('data-tier');
+            $('tr[data-tier="' + tier + '"]').toggle();
+
+            // Toggle the button's active state
+            $(this).toggleClass('active');
+            $(this).attr('aria-pressed', $(this).hasClass('active'));
         });
 
         // Event listener for refresh database button
-        $('#refresh-database').on('click', function() {
+        $('#refresh-database').off('click').on('click', function() {
             var $this = $(this);
             // Update the button text to show the loading state
             $this.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
             // Call the refreshDatabase function with a callback
             refreshDatabase(function(success) {
                 if (success) {
+                    // Update the table with the latest data
+                    updateTable();
+                    
                     // Reset the button text to "Refresh Database" on success
                     $this.text('Refresh Database');
                 } else {
@@ -231,82 +351,25 @@
                 }
             });
         });
+    }
 
-        // Toggle group functionality
-        $('.toggle-group').on('click', function() {
-            var groupName = $(this).attr('data-group');
+    // Document ready function
+    $(document).ready(function() {
+        console.log("Document ready!");
 
-            // Remove 'active' class from all group buttons
-            $('.toggle-group').removeClass('active').attr('aria-pressed', false);
+        console.log("checking token status...");
+        // Call the token check function when the page loads
+        checkTokenStatus()
+            .then(() => {
+                console.log("Token is valid, fetching data and initializing...");
+                // Fetch data and initialize the page
+                fetchDataAndInitialize();
 
-            // Add 'active' class to the clicked button
-            $(this).addClass('active').attr('aria-pressed', true);
-
-            // Deactivate all material buttons
-            $('.toggle-column').removeClass('active').attr('aria-pressed', false);
-
-            // Hide all columns except the first one ("Tier")
-            table.columns().every(function(index) {
-                if (index > 0) { // Exclude the first column
-                    table.column(index).visible(false);
-                }
+                // Refresh the token status every 30 seconds
+                setInterval(checkTokenStatus, 30000); // 30 seconds
+            })
+            .catch((error) => {
+                console.error(error);
             });
-
-            // Activate and show columns for materials in the selected group
-            $('.toggle-column[data-group="' + groupName + '"]').each(function() {
-                // Activate the material button
-                $(this).addClass('active').attr('aria-pressed', true);
-
-                // Get the column index
-                var columnIndex = parseInt($(this).attr('data-column'), 10);
-
-                // Show the column
-                table.column(columnIndex).visible(true);
-            });
-
-            // Adjust the table layout
-            table.columns.adjust().draw();
-        });
-
-        // Reset materials functionality
-        $('#reset-materials').on('click', function() {
-            // Deactivate all group buttons
-            $('.toggle-group').removeClass('active').attr('aria-pressed', false);
-
-            // Activate all material buttons
-            $('.toggle-column').addClass('active').attr('aria-pressed', true);
-
-            // Show all columns
-            table.columns().every(function(index) {
-                table.column(index).visible(true);
-            });
-
-            // Adjust the table layout
-            table.columns.adjust().draw();
-        });
-
-        // Toggle column visibility (Materials)
-        $('.toggle-column').on('click', function() {
-            var columnIndex = parseInt($(this).attr('data-column'), 10);
-            var column = table.column(columnIndex);
-            column.visible(!column.visible());
-
-            // Toggle the button's active state
-            $(this).toggleClass('active');
-            $(this).attr('aria-pressed', $(this).hasClass('active'));
-
-            // Adjust table layout after toggling columns
-            table.columns.adjust().draw(); // Adjust and redraw the table
-        });
-
-        // Toggle row visibility (Tiers)
-        $('.toggle-row').on('click', function() {
-            var tier = $(this).attr('data-tier');
-            $('tr[data-tier="' + tier + '"]').toggle();
-
-            // Toggle the button's active state
-            $(this).toggleClass('active');
-            $(this).attr('aria-pressed', $(this).hasClass('active'));
-        });
     });
 })();

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WoW Transmutation Calculator</title>
@@ -11,9 +12,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
     <!-- DataTables ColReorder CSS for column resizing -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/colreorder/1.5.4/css/colReorder.dataTables.min.css">
-
-
-    <!-- In the <head> section for CSS -->
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
 </head>
@@ -24,120 +23,81 @@
             <button id="auth-status" class="btn btn-sm btn-secondary ml-3">Checking token...</button>
             <!-- Button to refresh the database -->
             <button id="refresh-database" class="btn btn-sm btn-primary ml-3">Refresh Database</button>
-            
-            <!-- Add class="last-updated" to the span -->
-            <span class="ml-3 last-updated" style="font-size: 1rem;">Last Updated: {{ last_updated }}</span>
+            <!-- Last Updated Span -->
+            <span class="ml-3 last-updated" style="font-size: 1rem;">Last Updated: N/A</span>
         </h1>
-            
 
         <!-- Card for AH Price List -->
         <div class="card">
             <h2>Current AH Price List</h2>
 
-               <!-- Row for Price Type, Toggle Materials, and Toggle Tiers -->
-                <div class="row">
-                    <!-- Left column: Price Type and Toggle Tiers stacked -->
-                    <div class="col-md-6">
-                        <!-- Price Type -->
-                        <div class="card mb-2">
-                            <div class="card-body">
-                                <h3>Price Type:</h3>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="priceType" id="market_value" value="market_value" checked>
-                                    <label class="form-check-label" for="market_value">Market Value</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="priceType" id="min_unit_price" value="min_unit_price">
-                                    <label class="form-check-label" for="min_unit_price">Min Unit Price</label>
-                                </div>
+            <!-- Row for Price Type, Toggle Materials, and Toggle Tiers -->
+            <div class="row">
+                <!-- Left column: Price Type and Toggle Tiers stacked -->
+                <div class="col-md-6">
+                    <!-- Price Type -->
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h3>Price Type:</h3>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="priceType" id="market_value" value="market_value" checked>
+                                <label class="form-check-label" for="market_value">Market Value</label>
                             </div>
-                        </div>
-
-                        <!-- Toggle Tiers -->
-                        <div class="card">
-                            <div class="card-body">
-                                <h3>Toggle Tiers:</h3>
-                                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T1" aria-pressed="true">Toggle T1</button>
-                                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T2" aria-pressed="true">Toggle T2</button>
-                                <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T3" aria-pressed="true">Toggle T3</button>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="priceType" id="min_unit_price" value="min_unit_price">
+                                <label class="form-check-label" for="min_unit_price">Min Unit Price</label>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right column: Toggle Materials and Transmutagen Groups -->
-                    <div class="col-md-6">
-                        <!-- Toggle Materials -->
-                        <div class="card">
-                            <div class="card-body">
-                                <h3>Toggle Materials:</h3>
-                                <!-- Reset Button -->
-                                <button id="reset-materials" class="btn btn-outline-secondary btn-sm">Reset</button>
-                                <!-- Material Buttons -->
-                                {% for item_name in grouped_items %}
-                                    {% set group = material_groups.get(item_name, '') %}
-                                    <button class="toggle-column btn btn-outline-primary btn-sm active"
-                                            data-column="{{ loop.index0 + 1 }}"
-                                            data-group="{{ group }}"
-                                            aria-pressed="true">{{ item_name }}</button>
-                                {% endfor %}
-                            </div>
+                    <!-- Toggle Tiers -->
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>Toggle Tiers:</h3>
+                            <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T1" aria-pressed="true">Toggle T1</button>
+                            <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T2" aria-pressed="true">Toggle T2</button>
+                            <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T3" aria-pressed="true">Toggle T3</button>
                         </div>
-
-                        <!-- Transmutagen Groups -->
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h3>Transmutagen Groups:</h3>
-                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                    <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Mercurial">Mercurial Transmutagen</button>
-                                    <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Ominous">Ominous Transmutagen</button>
-                                    <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Volatile">Volatile Transmutagen</button>
-                                </div>
-                            </div>
-                        </div>
-
-
                     </div>
                 </div>
+
+                <!-- Right column: Toggle Materials and Transmutagen Groups -->
+                <div class="col-md-6">
+                    <!-- Toggle Materials -->
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>Toggle Materials:</h3>
+                            <!-- Reset Button -->
+                            <button id="reset-materials" class="btn btn-outline-secondary btn-sm">Reset</button>
+                            <!-- Material Buttons Container -->
+                            <div id="material-buttons">
+                                <!-- Material buttons will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transmutagen Groups -->
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h3>Transmutagen Groups:</h3>
+                            <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Mercurial">Mercurial Transmutagen</button>
+                            <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Ominous">Ominous Transmutagen</button>
+                            <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Volatile">Volatile Transmutagen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Table for commodities -->
             <div class="table-responsive">
                 <table id="commodities-table" class="display table table-striped table-bordered">
                     <thead>
-                        <tr>
-                            <th>Tier</th>
-                            {% for item_name in grouped_items %}
-                                <th>{{ item_name }}</th>
-                            {% endfor %}
+                        <tr id="commodities-table-header">
+                            <!-- Table headers will be dynamically inserted here -->
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- T1 Row -->
-                        <tr class="tier-row" data-tier="T1">
-                            <td>T1</td>
-                            {% for item_name, item_tiers in grouped_items.items() %}
-                                <td contenteditable="true" class="price" data-market_value="{{ item_tiers.T1.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T1.min_unit_price / 10000 }}">
-                                    {{ "%.2f" | format(item_tiers.T1.market_value / 10000) }} g
-                                </td>
-                            {% endfor %}
-                        </tr>
-                        <!-- T2 Row -->
-                        <tr class="tier-row" data-tier="T2">
-                            <td>T2</td>
-                            {% for item_name, item_tiers in grouped_items.items() %}
-                                <td contenteditable="true" class="price" data-market_value="{{ item_tiers.T2.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T2.min_unit_price / 10000 }}">
-                                    {{ "%.2f" | format(item_tiers.T2.market_value / 10000) }} g
-                                </td>
-                            {% endfor %}
-                        </tr>
-                        <!-- T3 Row -->
-                        <tr class="tier-row" data-tier="T3">
-                            <td>T3</td>
-                            {% for item_name, item_tiers in grouped_items.items() %}
-                                <td contenteditable="true" class="price" data-market_value="{{ item_tiers.T3.market_value / 10000 }}" data-min_unit_price="{{ item_tiers.T3.min_unit_price / 10000 }}">
-                                    {{ "%.2f" | format(item_tiers.T3.market_value / 10000) }} g
-                                </td>
-                            {% endfor %}
-                        </tr>
+                    <tbody id="commodities-table-body">
+                        <!-- Table body will be dynamically inserted here -->
                     </tbody>
                 </table>
             </div>
@@ -152,13 +112,7 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
     <!-- DataTables ColReorder JS -->
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/colreorder/1.5.4/js/dataTables.colReorder.min.js"></script>
-
-
-    <!-- In the <body> section for JS -->
+    <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    
- 
-
-
 </body>
 </html>

@@ -38,59 +38,60 @@ bnet = BnetAhApi(bnet_auth, db_handler)
 def datetimeformat(value):
     return datetime.datetime.fromtimestamp(value).strftime('%Y-%m-%d %H:%M:%S')
 
-# Define the material to group mapping (Moved outside the function to reuse)
-material_groups = {
-    "Arathor's Spear": "Mercurial",
-    "Blessing Blossom": "Mercurial",
-    "Ironclaw Ore": "Mercurial",
-    "Stormcharged Leather": "Mercurial",
-    "Aqirite": "Ominous",
-    "Gloom Chitin": "Ominous",
-    "Luredrop": "Ominous",
-    "Orbinid": "Ominous",
-    "Bismuth": "Volatile",
-    "Mycobloom": "Volatile",
-    "Storm Dust": "Volatile",
-    "Weavercloth": "Volatile",
-    # Include other materials if necessary
-}
+# function to derive material groups from xmute_data
+def get_material_groups(xmute_data):
+    material_groups = {}
+    for item in xmute_data:  # xmute_data is a list
+        item_name = item.get('item_name', '')
+        transmutations = item.get('transmutations', [])
+        group = None
+        for transmutation in transmutations:
+            material = transmutation.get('material', '')
+            if "Mercurial Transmutation" in material:
+                group = "Mercurial"
+                break  # Found the group, no need to check further
+            elif "Ominous Transmutation" in material:
+                group = "Ominous"
+                break
+            elif "Volatile Transmutation" in material:
+                group = "Volatile"
+                break
+        if group:
+            material_groups[item_name] = group
+    return material_groups
 
 # function to group the items by material
 def get_grouped_items():
-    xmute_data = load_xmute_commodities()
+    xmute_data = load_xmute_commodities()  # xmute_data is a list
     tracked_items_summary = db_handler.get_tracked_items_summary()
     item_summary_by_id = {item['item_id']: item for item in tracked_items_summary}
 
     grouped_items = {}
     for item in xmute_data:
-        item_name = item['item_name']
+        item_name = item.get('item_name', '')
         tiers = item.get('tiers', [])
         tier_data = {}
-        for idx, tier in enumerate(tiers):
-            tier_key = f'T{idx + 1}'
-            tier_data[tier_key] = item_summary_by_id.get(tier['item_id'], None)
+        for tier in tiers:
+            tier_number = tier.get('tier')
+            tier_key = f'T{tier_number}' if tier_number else 'T0'
+            item_id = tier.get('item_id')
+            tier_data[tier_key] = item_summary_by_id.get(item_id, None)
         grouped_items[item_name] = tier_data
     return grouped_items
 
 # function to return just the xmute data
 def get_xmute_data():
     xmute_data = load_xmute_commodities()
+    logging.info(f"xmute_data type: {type(xmute_data)}")
+    if isinstance(xmute_data, dict):
+        logging.info(f"xmute_data keys: {list(xmute_data.keys())}")
     return xmute_data
 
 # Default route
 @app.route('/')
 def home():
     logging.info("Home route accessed")
-    grouped_items = get_grouped_items()
-    xmute_data = get_xmute_data()
-    # pass the grouped items and material groups to the template, along with the xmute data
-    # we should actually handle all of this with javascript and make the information available via an API
-    return render_template(
-        'index.html', 
-        grouped_items=grouped_items,
-        material_groups=material_groups, 
-        xmute_data=xmute_data
-    )
+    return render_template('index.html')
 
 # Route to check the token status
 @app.route('/token/status', methods=['GET'])
@@ -106,8 +107,6 @@ def refresh_token():
     if not bnet_auth.refresh_token():
         return jsonify({'message': 'Failed to refresh token'}), 500
     return jsonify({'message': 'Token refreshed'})
-
-
 
 # Route to update the database
 @app.route('/database/refresh', methods=['GET'])
@@ -129,7 +128,9 @@ def refresh_database():
 @app.route('/database/summary', methods=['GET'])
 def database_summary():
     logging.info("Database summary route accessed")
+    xmute_data = get_xmute_data()  # Retrieve xmute_data
     grouped_items = get_grouped_items()
+    material_groups = get_material_groups(xmute_data)
     return jsonify({
         'grouped_items': grouped_items,
         'material_groups': material_groups
@@ -146,9 +147,7 @@ def database_xmute_data():
 print(db_handler.get_tracked_items_summary())
 
 if __name__ == "__main__":
-
     logging.info("Starting the Flask app")
-
     # Fetch the commodities data from the WoW API
     commodities_data = bnet.get_commodities_db()
 
