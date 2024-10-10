@@ -12,3 +12,5 @@ __pycache__
 **/__pycache__/
 *.pyc
 __pycache__/*
+__pycache__/bnet_ah_api.cpython-312.pyc
+__pycache__/bnet_auth_api.cpython-312.pyc
