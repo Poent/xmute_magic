@@ -100,7 +100,7 @@
 
                 // Generate table rows
                 console.log('Generating table rows...');
-                generateTableRows(grouped_items);
+                generatePriceTableRows(grouped_items);
 
                 // Attach event listeners
                 console.log('Attaching event listeners...');
@@ -128,7 +128,7 @@
                 var material_groups = response.material_groups;
 
                 // Update table rows
-                generateTableRows(grouped_items);
+                generatePriceTableRows(grouped_items);
 
                 // Update prices based on selected price type
                 var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
@@ -148,20 +148,20 @@
     function generateMaterialButtons(grouped_items, material_groups) {
         var $materialButtons = $('#material-buttons');
         $materialButtons.empty(); // Clear existing buttons
-    
+
         var index = 1; // Start from 1 because the first column is 'Tier'
-    
+
         Object.keys(grouped_items).forEach(function(item_name) {
             var group = material_groups[item_name] || '';
             var button = $('<button>')
-                .addClass('btn btn-outline-primary btn-sm active')
+                .addClass('toggle-column btn btn-outline-primary btn-sm active') // Added 'toggle-column'
                 .attr('data-column', index)
                 .attr('data-group', group)
                 .attr('aria-pressed', true)
                 .text(item_name);
-    
+
             $materialButtons.append(button);
-    
+
             index++;
         });
     }
@@ -180,8 +180,8 @@
         });
     }
 
-    // Function to generate table rows
-    function generateTableRows(grouped_items) {
+    // Function to generate price table rows
+    function generatePriceTableRows(grouped_items) {
         console.log('Generating table rows...');
         var $tableBody = $('#commodities-table-body');
         
@@ -274,8 +274,8 @@
             updatePrices(selectedPriceType);
         });
 
-        // Material buttons
-        $('.toggle-column').off('click').on('click', function() {
+        // Material buttons using event delegation
+        $('#material-buttons').off('click', '.toggle-column').on('click', '.toggle-column', function() {
             var columnIndex = parseInt($(this).attr('data-column'), 10);
             var column = table.column(columnIndex);
             column.visible(!column.visible());
