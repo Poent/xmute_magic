@@ -75,7 +75,8 @@
             // Fetch data and initialize the page
             fetchDataAndInitialize();
 
-            // Corrected code in main.js
+            // Set an interval to check the token status every 30 seconds
+            // if the token is valid, update the status button to green otherwise red
             setInterval(function(){
                 MyApp.api.checkTokenStatus().then(() => {
                     $('#auth-status').text('Token Valid').removeClass('btn-secondary btn-danger').addClass('btn-success');
