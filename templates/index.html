@@ -23,9 +23,10 @@
             <button id="auth-status" class="btn btn-sm btn-secondary ml-3">Checking token...</button>
             <!-- Button to refresh the database -->
             <button id="refresh-database" class="btn btn-sm btn-primary ml-3">Refresh Database</button>
-            <!-- Last Updated Span -->
-            <span class="ml-3 last-updated" style="font-size: 1rem;">Last Updated: N/A</span>
+            
         </h1>
+        <!-- Last Updated Span -->
+        <span class="ml-3 last-updated" style="font-size: 1rem;">DB Last Updated: N/A</span>
 
         <!-- Card for AH Price List -->
         <div class="card">
@@ -131,7 +132,12 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
     <!-- DataTables ColReorder JS -->
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/colreorder/1.5.4/js/dataTables.colReorder.min.js"></script>
+    
     <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/table.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
