@@ -133,7 +133,8 @@ def database_summary():
     material_groups = get_material_groups(xmute_data)
     return jsonify({
         'grouped_items': grouped_items,
-        'material_groups': material_groups
+        'material_groups': material_groups,
+        'material_properties': xmute_data
     })
 
 # Route to get the xmute_data json

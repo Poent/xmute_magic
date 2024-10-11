@@ -264,7 +264,6 @@
             $('.last-updated').text('Last Updated: ' + formattedDate);
         }
     }
-    
 
     // Function to attach event listeners
     function attachEventListeners() {
