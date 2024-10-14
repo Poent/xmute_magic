@@ -38,10 +38,23 @@ function fetchData() {
     });
 }
 
+// function to refresh the token. POST request to /token/refresh
+function refreshToken() {
+    return $.post('/token/refresh').then(response => {
+        return Promise.resolve(response);
+    }).fail((jqXHR, textStatus, errorThrown) => {
+        console.error('Error refreshing token:', textStatus, errorThrown);
+        return Promise.reject('Error refreshing token');
+    });
+}
+
+
+
 // Exporting functions
 window.MyApp = window.MyApp || {};
 window.MyApp.api = {
     checkTokenStatus,
     refreshDatabase,
+    refreshToken,
     fetchData
 };

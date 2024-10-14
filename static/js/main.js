@@ -1,8 +1,8 @@
 'use strict';
 
 (function() {
-    // Initialize the DataTable variable
-    var table;
+    // Initialize the priceTable variable
+    var priceTable;
 
     // Function to fetch data and initialize the page
     function fetchDataAndInitialize() {
@@ -24,37 +24,37 @@
             MyApp.table.generateTableHeaders(grouped_items);
 
             // Generate table rows and initialize DataTable
-            table = MyApp.table.generatePriceTableRows(grouped_items);
+            priceTable = MyApp.table.generatePriceTableRows(grouped_items);
 
             // Attach event listeners
-            MyApp.ui.attachEventListeners(table);
+            MyApp.ui.attachEventListeners(priceTable);
 
             // Update prices based on selected price type
             var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
-            MyApp.table.updatePrices(selectedPriceType, table);
+            MyApp.table.updatePrices(selectedPriceType, priceTable);
         }).catch(error => {
             console.error('Error initializing data:', error);
             alert('Error initializing data!');
         });
     }
 
-    // Function to update the table with the latest data
-    function updateTable() {
+    // Function to update the price table with the latest data
+    function updatePriceTable() {
         MyApp.api.fetchData().then(response => {
             var grouped_items = response.grouped_items;
             var material_groups = response.material_groups;
 
             // Update table rows
-            table.destroy(); // Destroy the existing DataTable
+            priceTable.destroy(); // Destroy the existing DataTable
             MyApp.table.generateTableHeaders(grouped_items);
-            table = MyApp.table.generatePriceTableRows(grouped_items);
+            priceTable = MyApp.table.generatePriceTableRows(grouped_items);
 
             // Reattach event listeners
-            MyApp.ui.attachEventListeners(table);
+            MyApp.ui.attachEventListeners(priceTable);
 
             // Update prices based on selected price type
             var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
-            MyApp.table.updatePrices(selectedPriceType, table);
+            MyApp.table.updatePrices(selectedPriceType, priceTable);
         }).catch(error => {
             console.error('Error updating table:', error);
             alert('Error updating table!');
@@ -94,6 +94,6 @@
     // Expose functions if needed
     window.MyApp = window.MyApp || {};
     window.MyApp.main = {
-        updateTable
+        updatePriceTable
     };
 })();

@@ -1,8 +1,8 @@
 'use strict';
 
 // Function to update prices based on the selected price type
-function updatePrices(priceType, table) {
-    var allRows = table.rows().nodes();
+function updatePrices(priceType, priceTable) {
+    var allRows = priceTable.rows().nodes();
 
     $(allRows).find('.price').each(function() {
         var price = $(this).attr('data-' + priceType);
@@ -39,7 +39,7 @@ function generateMaterialButtons(grouped_items, material_groups) {
 
 // Function to generate table headers
 function generateTableHeaders(grouped_items) {
-    var $headerRow = $('#commodities-table-header');
+    var $headerRow = $('#price-table-header');
     $headerRow.empty(); // Clear existing headers
 
     // Add 'Tier' header
@@ -54,11 +54,11 @@ function generateTableHeaders(grouped_items) {
 // Function to generate price table rows
 function generatePriceTableRows(grouped_items) {
     console.log('Generating table rows...');
-    var $tableBody = $('#commodities-table-body');
+    var $tableBody = $('#price-table-body');
     
     // Destroy DataTable before manipulating the DOM
-    if ($.fn.dataTable.isDataTable('#commodities-table')) {
-        $('#commodities-table').DataTable().destroy();
+    if ($.fn.dataTable.isDataTable('#price-table')) {
+        $('#price-table').DataTable().destroy();
     }
 
     // Clear existing rows
@@ -107,7 +107,7 @@ function generatePriceTableRows(grouped_items) {
     });
 
     // Reinitialize DataTable after the DOM manipulation
-    var table = $('#commodities-table').DataTable({
+    var table = $('#price-table').DataTable({ // target the table by id
         paging: false,
         searching: false,
         ordering: true,

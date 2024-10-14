@@ -1,17 +1,17 @@
 'use strict';
 
 // Function to attach event listeners
-function attachEventListeners(table) {
+function attachEventListeners(priceTable) {
     // Price type radio buttons
     $('input[name="priceType"]').off('change').on('change', function() {
         var selectedPriceType = $('input[name="priceType"]:checked').val();
-        MyApp.table.updatePrices(selectedPriceType, table);
+        MyApp.table.updatePrices(selectedPriceType, priceTable);
     });
 
     // Material buttons using event delegation
     $('#material-buttons').off('click', '.toggle-column').on('click', '.toggle-column', function() {
         var columnIndex = parseInt($(this).attr('data-column'), 10);
-        var column = table.column(columnIndex);
+        var column = priceTable.column(columnIndex);
         column.visible(!column.visible());
 
         // Toggle the button's active state
@@ -33,14 +33,14 @@ function attachEventListeners(table) {
         $('.toggle-column').removeClass('active').attr('aria-pressed', false);
 
         // Hide all columns except 'Tier'
-        table.columns().visible(false);
-        table.column(0).visible(true); // Keep 'Tier' column visible
+        priceTable.columns().visible(false);
+        priceTable.column(0).visible(true); // Keep 'Tier' column visible
 
         // Show columns for materials in the selected group
         $('.toggle-column[data-group="' + groupName + '"]').each(function() {
             $(this).addClass('active').attr('aria-pressed', true);
             var columnIndex = parseInt($(this).attr('data-column'), 10);
-            table.column(columnIndex).visible(true);
+            priceTable.column(columnIndex).visible(true);
         });
     });
 
@@ -53,7 +53,7 @@ function attachEventListeners(table) {
         $('.toggle-column').addClass('active').attr('aria-pressed', true);
 
         // Show all columns
-        table.columns().visible(true);
+        priceTable.columns().visible(true);
     });
 
     // Tier toggle buttons
@@ -73,9 +73,9 @@ function attachEventListeners(table) {
         $this.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
         // Call the refreshDatabase function with a callback
         MyApp.api.refreshDatabase().then((message) => {
-            alert(message);
+            console.log(message);
             // Update the table with the latest data
-            MyApp.main.updateTable();
+            MyApp.main.updatePriceTable();
 
             // Reset the button text to "Refresh Database" on success
             $this.text('Refresh Database');
@@ -85,6 +85,26 @@ function attachEventListeners(table) {
             $this.text('Retry');
         });
     });
+
+    // Event Listener for auth-status button - refersh token when pressed
+    $('#auth-status').off('click').on('click', function() {
+        var $this = $(this);
+        // Update the button text to show the loading state
+        $this.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
+        // Call the refreshToken function with a callback
+        MyApp.api.refreshToken().then((response) => {
+            console.log(response);
+            // Update the button text to "Token Valid" on success
+            $this.text('Token Valid');
+            $this.removeClass('btn-secondary').addClass('btn-success');
+        }).catch((error) => {
+            alert(error);
+            // Update the button text to "Token Invalid" on failure
+            $this.text('Token Invalid');
+            $this.removeClass('btn-success').addClass('btn-secondary');
+        });
+    });
+
 }
 
 // Exporting functions
