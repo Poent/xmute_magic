@@ -168,5 +168,43 @@
               { "material": "Volatile Transmutation", "result_chance": 0.16 }
           ]
       }
-  ]
+  ],
+  "transmutagen": [
+      {
+          "item_name": "Ominous Transmutation",
+          "results": [
+              { "material": "Aqirite", "result_chance": 0.12 },
+              { "material": "Gloom Chitin", "result_chance": 0.12 },
+              { "material": "Luredrop", "result_chance": 0.12 },
+              { "material": "Orbinid", "result_chance": 0.12 }
+          ]
+        },
+        {
+            "item_name": "Mercurial Transmutation",
+            "results": [
+                { "material": "Arathor's Spear", "result_chance": 0.12 },
+                { "material": "Blessing Blossom", "result_chance": 0.12 },
+                { "material": "Ironclaw Ore", "result_chance": 0.12 },
+                { "material": "Stormcharged Leather", "result_chance": 0.12 }
+            ]
+        },
+        {
+            "item_name": "Volatile Transmutation",
+            "results": [
+                { "material": "Bismuth", "result_chance": 0.12 },
+                { "material": "Mycobloom", "result_chance": 0.12 },
+                { "material": "Storm Dust", "result_chance": 0.12 },
+                { "material": "Weavercloth", "result_chance": 0.12 }
+            ]
+        }
+    ],
+    "crystalized": [
+        { "item_name": "Ambivilent Amber", "item_id": 212498 },
+        { "item_name": "Extravagant Emerald", "item_id": 212505 },
+        { "item_name": "Radiant Ruby", "item_id": 212495 },
+        { "item_name": "Stunning Sapphire", "item_id": 212508 },
+        { "item_name": "Ostentatious Onyx", "item_id": 212511},
+        { "item_name": "Gleaming transmutagen", "item_id": 211805 },
+        { "item_name": "Blasphemite", "item_id": 212514 }
+    ]
 }

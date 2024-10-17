@@ -4,6 +4,7 @@ import json
 def load_xmute_commodities(file_path='xmute_commodities.json'):
     """Load the xmute_commodities.json file and return the list of thaumaturgy ingredients."""
     with open(file_path, 'r') as file:
+
         return json.load(file)['thaumaturgy_ingredients']
 
 # Lookup function for item name based on ID
