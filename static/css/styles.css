@@ -32,3 +32,7 @@ th {
 .dataTables_wrapper {
     overflow-x: auto;
 }
+
+.last-updated {
+    font-size: 1rem;
+}

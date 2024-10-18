@@ -2,30 +2,32 @@
 
 // Function to attach event listeners
 function attachEventListeners(priceTable, profitTable) {
+    var priceTable = MyApp.tables.priceTable;
+    var profitTable = MyApp.tables.profitTable;
+
     // Price type radio buttons
     $('input[name="priceType"]').off('change').on('change', function() {
         var selectedPriceType = $('input[name="priceType"]:checked').val();
-        MyApp.table.updatePrices(selectedPriceType, priceTable);
+        MyApp.table.updatePriceTable(selectedPriceType);
         // Recalculate profits
-        MyApp.table.updateProfits(MyApp.data.grouped_items, MyApp.data.material_properties, profitTable);
+        MyApp.table.updateProfitTable();
     });
 
-    // Material buttons using event delegation
-    $('#material-buttons').off('click', '.toggle-column').on('click', '.toggle-column', function() {
-        var columnIndex = parseInt($(this).attr('data-column'), 10);
-        var columnInPriceTable = priceTable.column(columnIndex);
-        var columnInProfitTable = profitTable.column(columnIndex);
-
-        var isVisible = !columnInPriceTable.visible();
-        columnInPriceTable.visible(isVisible);
-        columnInProfitTable.visible(isVisible);
+   // Material buttons event listener
+   $('#material-buttons').off('click', '.toggle-column').on('click', '.toggle-column', function() {
+        var item_name = $(this).attr('data-item-name');
 
         // Toggle the button's active state
         $(this).toggleClass('active');
-        $(this).attr('aria-pressed', $(this).hasClass('active'));
-    });
+        var isActive = $(this).hasClass('active');
+        $(this).attr('aria-pressed', isActive);
 
-    // In attachEventListeners function
+        // Toggle column visibility in both tables based on item_name
+        toggleColumnVisibilityByItemName(item_name, isActive);
+    });
+    
+    
+    // This function is used to update the price table when the user changes the price of an item
     $('#price-table').off('blur', '.price').on('blur', '.price', function() {
         var $cell = $(this);
         var newPriceText = $cell.text().replace(' g', '').trim();
@@ -43,7 +45,7 @@ function attachEventListeners(priceTable, profitTable) {
             MyApp.data.grouped_items[itemName][tier][selectedPriceType] = newPrice * 10000; // Convert back to copper
 
             // Recalculate profits and update colors
-            MyApp.table.updateProfits(MyApp.data.grouped_items, MyApp.data.material_properties, profitTable);
+            MyApp.table.updateProfitTable();
         }
     });
 
@@ -52,41 +54,41 @@ function attachEventListeners(priceTable, profitTable) {
     // Group buttons
     $('.toggle-group').off('click').on('click', function() {
         var groupName = $(this).attr('data-group');
-
+    
         // Deactivate other group buttons
         $('.toggle-group').removeClass('active').attr('aria-pressed', false);
-
+    
         // Activate clicked button
         $(this).addClass('active').attr('aria-pressed', true);
-
+    
         // Deactivate all material buttons
         $('.toggle-column').removeClass('active').attr('aria-pressed', false);
-
+    
         // Hide all columns except 'Tier'
         priceTable.columns().visible(false);
         priceTable.column(0).visible(true); // Keep 'Tier' column visible
-
-        // hide all columns in profit table
         profitTable.columns().visible(false);
         profitTable.column(0).visible(true); // Keep 'Tier' column visible
-
+    
         // Show columns for materials in the selected group
         $('.toggle-column[data-group="' + groupName + '"]').each(function() {
             $(this).addClass('active').attr('aria-pressed', true);
-            var columnIndex = parseInt($(this).attr('data-column'), 10);
-            priceTable.column(columnIndex).visible(true);
-            profitTable.column(columnIndex).visible(true);
+            var item_name = $(this).attr('data-item-name');
+    
+            // Show columns by item name
+            toggleColumnVisibilityByItemName(item_name, true);
         });
     });
+    
 
     // Reset materials button
     $('#reset-materials').off('click').on('click', function() {
         // Deactivate group buttons
         $('.toggle-group').removeClass('active').attr('aria-pressed', false);
-
+    
         // Activate all material buttons
         $('.toggle-column').addClass('active').attr('aria-pressed', true);
-
+    
         // Show all columns
         priceTable.columns().visible(true);
         profitTable.columns().visible(true);
@@ -111,8 +113,13 @@ function attachEventListeners(priceTable, profitTable) {
         // Call the refreshDatabase function with a callback
         MyApp.api.refreshDatabase().then((message) => {
             console.log(message);
+
+            // Update prices based on selected price type
+            var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
+
             // Update the table with the latest data
-            MyApp.main.updatePriceTable();
+            MyApp.table.updatePriceTable(selectedPriceType);
+            MyApp.table.updateProfitTable(selectedPriceType);
 
             // Reset the button text to "Refresh Database" on success
             $this.text('Refresh Database');
@@ -145,7 +152,6 @@ function attachEventListeners(priceTable, profitTable) {
 }
 
 // we have a separate function to attach the event listener for the auth-status button
-// so that we can call it from the main.js file outside of the initial fetch data function
 function attachAuthStatusEventListener() {
     $('#auth-status').off('click').on('click', function() {
         var $this = $(this);
@@ -165,10 +171,34 @@ function attachAuthStatusEventListener() {
         });
     });
 }
+    
+// Modify toggleColumnVisibilityByItemName to access priceTable and profitTable from MyApp.tables
+function toggleColumnVisibilityByItemName(item_name, isVisible) {
+    var priceTable = MyApp.tables.priceTable;
+    var profitTable = MyApp.tables.profitTable;
+
+    // Find the column in the price table
+    var priceColumn = priceTable.column(function(idx, data, node) {
+        var header = $(priceTable.column(idx).header());
+        return header.text() === item_name;
+    });
+
+    // Find the column in the profit table
+    var profitColumn = profitTable.column(function(idx, data, node) {
+        var header = $(profitTable.column(idx).header());
+        return header.text() === item_name;
+    });
+
+    // Toggle visibility
+    priceColumn.visible(isVisible);
+    profitColumn.visible(isVisible);
+}
+
 
 // Exporting functions
 window.MyApp = window.MyApp || {};
 window.MyApp.ui = {
     attachEventListeners,
-    attachAuthStatusEventListener 
+    attachAuthStatusEventListener ,
+    toggleColumnVisibilityByItemName
 };

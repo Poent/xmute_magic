@@ -1,131 +1,125 @@
 'use strict';
 
-(function() {
-    // Initialize the priceTable variable
-    var priceTable;
-    var profitTable;
+(() => {
+    // Expose priceTable and profitTable in the MyApp namespace
+    window.MyApp = window.MyApp || {};
+    MyApp.tables = {
+        priceTable: null,
+        profitTable: null
+    };
 
-    function fetchDataAndInitialize() {
+    // Function to fetch data
+    const fetchData = async () => {
         console.log('Fetching data...');
-    
-        MyApp.api.fetchData().then(response => {
+        try {
+            const response = await MyApp.api.fetchData();
             console.log('Response:', response);
-    
-            var grouped_items = response.grouped_items;
-            var material_groups = response.material_groups;
-            var material_properties_array = response.material_properties; // This is the array
-    
+
+            const { grouped_items, material_groups, material_properties } = response;
+
             // Convert material_properties array to an object keyed by item_name
-            var material_properties = {};
-            material_properties_array.forEach(function(item) {
-                material_properties[item.item_name] = item;
+            const materialProps = {};
+            material_properties.forEach(item => {
+                materialProps[item.item_name] = item;
             });
-    
+
             // Store data in MyApp namespace for global access
             MyApp.data = {
-                grouped_items: grouped_items,
-                material_groups: material_groups,
-                material_properties: material_properties // Now an object
+                grouped_items,
+                material_groups,
+                material_properties: materialProps
             };
-    
+
             console.log('Grouped items:', grouped_items);
             console.log('Material groups:', material_groups);
-            console.log('Material properties:', material_properties);
-    
-            // Generate material buttons
-            MyApp.table.generateMaterialButtons(grouped_items, material_groups);
-    
-            // Generate table headers for price table
-            MyApp.table.generateTableHeaders(grouped_items, '#price-table-header');
-    
-            // Generate table headers for profit table
-            MyApp.table.generateTableHeaders(grouped_items, '#profit-table-header');
-    
-            // Generate price table rows and initialize DataTable
-            priceTable = MyApp.table.generatePriceTableRows(grouped_items);
-    
-            // Generate profit table rows and initialize DataTable
-            profitTable = MyApp.table.generateProfitTableRows(grouped_items, material_properties);
-    
-            // Attach event listeners
-            MyApp.ui.attachEventListeners(priceTable, profitTable);
-    
-            // Update prices based on selected price type
-            var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
-            MyApp.table.updatePrices(selectedPriceType, priceTable);
-    
-            // Update profits based on current prices
-            MyApp.table.updateProfits(grouped_items, material_properties, profitTable);
-    
-        }).catch(error => {
-            console.error('Error initializing data:', error);
-            alert('Error initializing data!');
-        });
-    }
-    
-    
-    
-    
+            console.log('Material properties:', materialProps);
 
-    // Function to update the price table with the latest data
-    function updatePriceTable() {
-        MyApp.api.fetchData().then(response => {
-            var grouped_items = response.grouped_items;
-            var material_groups = response.material_groups;
+            return MyApp.data; // Return the data for further processing
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            throw error; // Re-throw error to be caught by the caller
+        }
+    };
 
-            // Update table rows
-            priceTable.destroy(); // Destroy the existing DataTable
-            MyApp.table.generateTableHeaders(grouped_items);
-            priceTable = MyApp.table.generatePriceTableRows(grouped_items);
+    // Function to initialize tables
+    const initializeTables = (data) => {
+        const { grouped_items, material_groups, material_properties } = data;
 
-            // Reattach event listeners
-            MyApp.ui.attachEventListeners(priceTable);
+        // Generate material buttons
+        MyApp.table.generateMaterialButtons(grouped_items, material_groups);
 
-            // Update prices based on selected price type
-            var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
-            MyApp.table.updatePrices(selectedPriceType, priceTable);
-        }).catch(error => {
-            console.error('Error updating table:', error);
-            alert('Error updating table!');
-        });
-    }
+        // Generate table headers for price and profit tables
+        MyApp.table.generateTableHeaders(grouped_items, '#price-table-header');
+        MyApp.table.generateTableHeaders(grouped_items, '#profit-table-header');
+
+        // Generate price table rows and initialize DataTable
+        MyApp.tables.priceTable = MyApp.table.generatePriceTableRows(grouped_items);
+
+        // Generate profit table rows and initialize DataTable
+        MyApp.tables.profitTable = MyApp.table.generateProfitTableRows(grouped_items, material_properties);
+
+        // Attach event listeners
+        MyApp.ui.attachEventListeners();
+
+        // Update prices based on selected price type
+        const selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
+        MyApp.table.updatePriceTable(selectedPriceType);
+
+        // Update profits based on current prices
+        MyApp.table.updateProfitTable();
+    };
+
+    // Function to check token status
+    const checkTokenStatus = async () => {
+        console.log("Checking token status...");
+        try {
+            const data = await MyApp.api.checkTokenStatus();
+            console.log("Token is valid.", data);
+            $('#auth-status')
+                .text('Token Valid')
+                .removeClass('btn-secondary btn-danger')
+                .addClass('btn-success');
+            return true;
+        } catch (error) {
+            console.error("Token invalid:", error.message || error);
+            $('#auth-status')
+                .text('Token Invalid')
+                .removeClass('btn-secondary btn-success')
+                .addClass('btn-danger');
+            return false;
+        }
+    };
+
 
     // Document ready function
-    $(document).ready(function() {
+    $(document).ready(async () => {
         console.log("Document ready!");
 
-        // attach event listeners to the refresh button
+        // Attach event listeners to the refresh button
         MyApp.ui.attachAuthStatusEventListener();
-         
-        console.log("Checking token status...");
-        // Call the token check function when the page loads
-        MyApp.api.checkTokenStatus().then(() => {
-            console.log("Token is valid, fetching data and initializing...");
 
-            $('#auth-status').text('Token Valid').removeClass('btn-secondary').addClass('btn-success');
+        // Check token status and fetch data if token is valid
+        const isValid = await checkTokenStatus();
+        if (isValid) {
+            try {
+                const data = await fetchData();
+                initializeTables(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                alert('Error fetching data!');
+            }
+        } else {
+            // Handle invalid token case
+            console.error("Token is invalid, cannot fetch data.");
+        }
 
-            // Fetch data and initialize the page
-            fetchDataAndInitialize();
-
-            // Set an interval to check the token status every 30 seconds
-            // if the token is valid, update the status button to green otherwise red
-            setInterval(function(){
-                MyApp.api.checkTokenStatus().then(() => {
-                    $('#auth-status').text('Token Valid').removeClass('btn-secondary btn-danger').addClass('btn-success');
-                }).catch((error) => {
-                    $('#auth-status').text('Token Invalid').removeClass('btn-secondary btn-success').addClass('btn-danger');
-                });
-            }, 30000); // 30 seconds
-
-        }).catch((error) => {
-            console.error(error);
-            $('#auth-status').text('Token Invalid').removeClass('btn-secondary').addClass('btn-danger');
-        });
+        // Set an interval to check the token status every 30 seconds
+        setInterval(async () => {
+            try {
+                await checkTokenStatus();
+            } catch (error) {
+                console.error('Error during token status check:', error);
+            }
+        }, 30000); // 30 seconds
     });
-
-    // Expose functions if needed
-    window.MyApp = window.MyApp || {};
-    window.MyApp.main = {
-        updatePriceTable
-    };
 })();

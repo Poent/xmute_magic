@@ -1,54 +1,67 @@
 'use strict';
 
-// Function to check the token status
-function checkTokenStatus() {
-    return $.get('/token/status').then(response => {
-        if (response.valid) {
-            return Promise.resolve(response);
-        } else {
-            return Promise.reject('Token is invalid');
+// Helper function to fetch JSON data with error handling
+async function fetchJSON(url, options = {}) {
+    try {
+        const response = await fetch(url, options);
+
+        // Check for HTTP errors
+        if (!response.ok) {
+            let errorMsg = `HTTP error! status: ${response.status}`;
+            try {
+                const errorData = await response.json();
+                if (errorData.message) {
+                    errorMsg = errorData.message;
+                }
+            } catch (e) {
+                // Response is not JSON
+            }
+            throw new Error(errorMsg);
         }
-    }).fail((jqXHR, textStatus, errorThrown) => {
-        console.error('Error checking token:', textStatus, errorThrown);
-        return Promise.reject('Error checking token');
-    });
+
+        // Parse and return JSON data
+        return await response.json();
+    } catch (error) {
+        console.error(`Error fetching ${url}:`, error);
+        throw error;  // Re-throw the error for the caller to handle
+    }
+}
+
+// Function to check the token status
+async function checkTokenStatus() {
+    const data = await fetchJSON('/token/status');
+    if (data.valid) {
+        return data;
+    } else {
+        throw new Error('Token is invalid');
+    }
 }
 
 // Function to refresh the database
-function refreshDatabase() {
-    return $.get('/database/refresh').then(response => {
-        if (response.success) {
-            return Promise.resolve(response.message);
-        } else {
-            return Promise.reject(response.message);
-        }
-    }).fail((jqXHR, textStatus, errorThrown) => {
-        console.error('Error refreshing database:', textStatus, errorThrown);
-        return Promise.reject('Error refreshing database');
-    });
+async function refreshDatabase() {
+    const data = await fetchJSON('/database/refresh');
+    if (data.success) {
+        return data.message;
+    } else {
+        throw new Error(data.message || 'Unknown error while refreshing database');
+    }
 }
 
 // Function to fetch data and return the response
-function fetchData() {
-    return $.get('/database/summary').then(response => {
-        return Promise.resolve(response);
-    }).fail((jqXHR, textStatus, errorThrown) => {
-        console.error('Error fetching data:', textStatus, errorThrown);
-        return Promise.reject('Error fetching data');
-    });
+async function fetchData() {
+    return await fetchJSON('/database/summary');
 }
 
-// function to refresh the token. POST request to /token/refresh
-function refreshToken() {
-    return $.post('/token/refresh').then(response => {
-        return Promise.resolve(response);
-    }).fail((jqXHR, textStatus, errorThrown) => {
-        console.error('Error refreshing token:', textStatus, errorThrown);
-        return Promise.reject('Error refreshing token');
+// Function to refresh the token. POST request to /token/refresh
+async function refreshToken() {
+    const data = await fetchJSON('/token/refresh', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
     });
+    return data;
 }
-
-
 
 // Exporting functions
 window.MyApp = window.MyApp || {};
@@ -56,5 +69,5 @@ window.MyApp.api = {
     checkTokenStatus,
     refreshDatabase,
     refreshToken,
-    fetchData
+    fetchData,
 };
