@@ -36,3 +36,7 @@ th {
 .last-updated {
     font-size: 1rem;
 }
+
+.modified-price-cell {
+    background-color: #e7ffcc; /* Light blue background to indicate modification */
+}

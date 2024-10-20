@@ -122,4 +122,10 @@
             }
         }, 30000); // 30 seconds
     });
+
+    // Expose functions to MyApp namespace
+    MyApp.fetchData = fetchData;
+    MyApp.initializeTables = initializeTables;
+    MyApp.checkTokenStatus = checkTokenStatus;
+
 })();

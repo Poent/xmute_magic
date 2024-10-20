@@ -26,28 +26,53 @@ function attachEventListeners(priceTable, profitTable) {
         toggleColumnVisibilityByItemName(item_name, isActive);
     });
     
-    
-    // This function is used to update the price table when the user changes the price of an item
-    $('#price-table').off('blur', '.price').on('blur', '.price', function() {
+    // Handle 'blur', 'keydown', and 'focusout' events on price cells
+    $('#price-table tbody').off('blur keydown focusout', '.price').on('blur keydown focusout', '.price', function(e) {
         var $cell = $(this);
-        var newPriceText = $cell.text().replace(' g', '').trim();
-        var newPrice = parseFloat(newPriceText);
 
-        if (!isNaN(newPrice)) {
-            var row = priceTable.row($cell.closest('tr')).index();
-            var column = priceTable.cell($cell).index().column;
+        // Console log to check which event is firing
+        console.log('Event:', e.type);
+
+        if (e.type === 'keydown' && e.key === 'Enter') {
+            console.log('Price cell enter keydown event caught');
+            e.preventDefault();
+            $cell.blur(); // Trigger blur event to commit the edit
+            return;
+        }
+
+        if (e.type === 'blur' || e.type === 'focusout') {
+            console.log('Price cell blur/focusout event');
+
+            var newPriceText = $cell.text().replace(' g', '').trim();
+            var newPrice = parseFloat(newPriceText);
+
             var tier = $cell.closest('tr').attr('data-tier');
-            var itemIndex = column - 1; // Adjust for 'Tier' column
-            var itemName = Object.keys(MyApp.data.grouped_items)[itemIndex];
+            var itemName = $cell.attr('data-item-name');
 
-            // Update grouped_items with new price
             var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
-            MyApp.data.grouped_items[itemName][tier][selectedPriceType] = newPrice * 10000; // Convert back to copper
 
-            // Recalculate profits and update colors
-            MyApp.table.updateProfitTable();
+            if (!isNaN(newPrice)) {
+                // Update grouped_items with new price
+                MyApp.data.grouped_items[itemName][tier][selectedPriceType] = newPrice * 10000; // Convert back to copper
+
+                // Recalculate profits and update colors
+                MyApp.table.updateProfitTable();
+
+                // Update the cell text to include "g"
+                $cell.text(`${newPrice.toFixed(2)} g`);
+
+                // Add a CSS class to indicate the cell has been modified
+                $cell.addClass('modified-price-cell');
+            } else {
+                // If the input is not a valid number, reset the cell to the previous value
+                var originalPriceCopper = MyApp.data.grouped_items[itemName][tier][selectedPriceType];
+                var originalPriceGold = (originalPriceCopper / 10000).toFixed(2);
+                $cell.text(`${originalPriceGold} g`);
+            }
         }
     });
+
+
 
 
 
@@ -105,30 +130,47 @@ function attachEventListeners(priceTable, profitTable) {
     });
 
 
-    // Event listener for refresh database button
-    $('#refresh-database').off('click').on('click', function() {
-        var $this = $(this);
-        // Update the button text to show the loading state
-        $this.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
-        // Call the refreshDatabase function with a callback
-        MyApp.api.refreshDatabase().then((message) => {
-            console.log(message);
+// Event listener for refresh database button
+$('#refresh-database').off('click').on('click', function() {
+    var $this = $(this);
+    // Update the button text to show the loading state
+    $this.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
+    
+    // Call the refreshDatabase function
+    MyApp.api.refreshDatabase().then((message) => {
+        console.log(message);
 
-            // Update prices based on selected price type
-            var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
+        // Fetch the updated data
+        return MyApp.api.fetchData();
+    }).then((data) => {
+        // Update MyApp.data with the new data
+        const { grouped_items, material_groups, material_properties } = data;
 
-            // Update the table with the latest data
-            MyApp.table.updatePriceTable(selectedPriceType);
-            MyApp.table.updateProfitTable(selectedPriceType);
-
-            // Reset the button text to "Refresh Database" on success
-            $this.text('Refresh Database');
-        }).catch((error) => {
-            alert(error);
-            // Reset the button text to "Retry" on failure
-            $this.text('Retry');
+        // Convert material_properties array to an object keyed by item_name
+        const materialProps = {};
+        material_properties.forEach(item => {
+            materialProps[item.item_name] = item;
         });
+
+        MyApp.data = {
+            grouped_items,
+            material_groups,
+            material_properties: materialProps,
+        };
+
+        // Re-initialize the tables with the new data
+        MyApp.initializeTables(MyApp.data);
+
+        // Reset the button text to "Refresh Database" on success
+        $this.text('Refresh Database');
+    }).catch((error) => {
+        console.error(error);
+        alert('Error refreshing database!');
+        // Reset the button text to "Retry" on failure
+        $this.text('Retry');
     });
+});
+
 
     // Event Listener for auth-status button - refersh token when pressed
     $('#auth-status').off('click').on('click', function() {
