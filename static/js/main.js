@@ -30,6 +30,9 @@
                 material_properties: materialProps
             };
 
+            // Make a deep copy of grouped_items to store original prices
+            MyApp.data.original_grouped_items = JSON.parse(JSON.stringify(grouped_items));
+
             console.log('Grouped items:', grouped_items);
             console.log('Material groups:', material_groups);
             console.log('Material properties:', materialProps);

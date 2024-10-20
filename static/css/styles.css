@@ -40,3 +40,9 @@ th {
 .modified-price-cell {
     background-color: #e7ffcc; /* Light blue background to indicate modification */
 }
+
+/* Style for the reset button */
+.reset-price-btn {
+    margin-left: 5px;
+    font-size: 0.8em;
+}

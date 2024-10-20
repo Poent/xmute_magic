@@ -67,18 +67,20 @@ function updatePriceTable(priceType) {
 
     const allRows = priceTable.rows().nodes();
 
-    $(allRows).find('.price').each(function() {
+    $(allRows).find('.price-cell').each(function() {
         const $cell = $(this);
+        const $priceText = $cell.find('.price-text');
         const itemName = $cell.attr('data-item-name');
         const tier = $cell.closest('tr').attr('data-tier');
         const priceCopper = MyApp.data.grouped_items[itemName][tier][priceType];
         const priceFloat = priceCopper / 10000;
 
         if (!isNaN(priceFloat)) {
-            $cell.text(`${priceFloat.toFixed(2)} g`);
+            $priceText.text(`${priceFloat.toFixed(2)} g`);
         }
     });
 }
+
 
 
 // Function to generate material buttons for toggling columns
@@ -132,10 +134,13 @@ function generatePriceTableRows(groupedItems) {
                 const marketValue = (itemData.market_value / 10000).toFixed(2);
                 const minUnitPrice = (itemData.min_unit_price / 10000).toFixed(2);
 
+                // Price cell with data attributes for sorting and a hidden reset button
                 priceCell = `
-                    <td tabindex="0" contenteditable="true" class="price" data-market_value="${marketValue}" data-min_unit_price="${minUnitPrice}" data-item-name="${itemName}">
-                        ${marketValue} g
-                    </td>`;
+                <td tabindex="0" class="price-cell" data-market_value="${marketValue}" data-min_unit_price="${minUnitPrice}" data-item-name="${itemName}">
+                    <span contenteditable="true" class="price-text">${marketValue} g</span>
+                    <button class="reset-price-btn btn btn-sm btn-link" type="button" style="display: none;">Reset</button>
+                </td>`;
+
 
                 if (itemData.last_updated) {
                     const itemTimestamp = itemData.last_updated;

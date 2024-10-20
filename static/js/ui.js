@@ -26,24 +26,19 @@ function attachEventListeners(priceTable, profitTable) {
         toggleColumnVisibilityByItemName(item_name, isActive);
     });
     
-    // Handle 'blur', 'keydown', and 'focusout' events on price cells
-    $('#price-table tbody').off('blur keydown focusout', '.price').on('blur keydown focusout', '.price', function(e) {
-        var $cell = $(this);
-
-        // Console log to check which event is firing
-        console.log('Event:', e.type);
+    // Handle 'blur', 'keydown', and 'focusout' events on price text
+    $('#price-table tbody').off('blur keydown focusout', '.price-text').on('blur keydown focusout', '.price-text', function(e) {
+        var $priceText = $(this);
+        var $cell = $priceText.closest('td');
 
         if (e.type === 'keydown' && e.key === 'Enter') {
-            console.log('Price cell enter keydown event caught');
             e.preventDefault();
-            $cell.blur(); // Trigger blur event to commit the edit
+            $priceText.blur(); // Trigger blur event to commit the edit
             return;
         }
 
         if (e.type === 'blur' || e.type === 'focusout') {
-            console.log('Price cell blur/focusout event');
-
-            var newPriceText = $cell.text().replace(' g', '').trim();
+            var newPriceText = $priceText.text().replace(' g', '').trim();
             var newPrice = parseFloat(newPriceText);
 
             var tier = $cell.closest('tr').attr('data-tier');
@@ -58,21 +53,57 @@ function attachEventListeners(priceTable, profitTable) {
                 // Recalculate profits and update colors
                 MyApp.table.updateProfitTable();
 
-                // Update the cell text to include "g"
-                $cell.text(`${newPrice.toFixed(2)} g`);
+                // Update the price text to include "g"
+                $priceText.text(`${newPrice.toFixed(2)} g`);
 
                 // Add a CSS class to indicate the cell has been modified
                 $cell.addClass('modified-price-cell');
+
+                // Show the reset button
+                $cell.find('.reset-price-btn').show();
             } else {
-                // If the input is not a valid number, reset the cell to the previous value
+                // If the input is not a valid number, reset the price text to the previous value
                 var originalPriceCopper = MyApp.data.grouped_items[itemName][tier][selectedPriceType];
                 var originalPriceGold = (originalPriceCopper / 10000).toFixed(2);
-                $cell.text(`${originalPriceGold} g`);
+                $priceText.text(`${originalPriceGold} g`);
+
+                // Remove modified class and hide reset button if present
+                $cell.removeClass('modified-price-cell');
+                $cell.find('.reset-price-btn').hide();
             }
         }
     });
 
+    // Handle reset button clicks
+    $('#price-table tbody').on('click', '.reset-price-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent event from bubbling up
 
+        var $btn = $(this);
+        var $cell = $btn.closest('td');
+        var $priceText = $cell.find('.price-text');
+
+        var itemName = $cell.attr('data-item-name');
+        var tier = $cell.closest('tr').attr('data-tier');
+        var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
+
+        // Get the original price from MyApp.data.original_grouped_items
+        var originalPriceCopper = MyApp.data.original_grouped_items[itemName][tier][selectedPriceType];
+        var originalPriceGold = (originalPriceCopper / 10000).toFixed(2);
+
+        // Update the price text
+        $priceText.text(`${originalPriceGold} g`);
+
+        // Update grouped_items with original price
+        MyApp.data.grouped_items[itemName][tier][selectedPriceType] = originalPriceCopper;
+
+        // Remove modified class and hide reset button
+        $cell.removeClass('modified-price-cell');
+        $btn.hide();
+
+        // Recalculate profits and update colors
+        MyApp.table.updateProfitTable();
+    });
 
 
 
@@ -118,6 +149,33 @@ function attachEventListeners(priceTable, profitTable) {
         priceTable.columns().visible(true);
         profitTable.columns().visible(true);
     });
+
+    // Handle reset all prices button
+    $('#reset-all-prices').off('click').on('click', function() {
+        // Confirm with the user
+        if (!confirm('Are you sure you want to reset all prices to default values?')) {
+            return;
+        }
+
+        const selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
+
+        // Reset grouped_items to original values
+        MyApp.data.grouped_items = JSON.parse(JSON.stringify(MyApp.data.original_grouped_items));
+
+        // Update the price table
+        MyApp.table.updatePriceTable(selectedPriceType);
+
+        // Remove modified class and hide reset buttons in all cells
+        $('#price-table tbody').find('td.price-cell').each(function() {
+            const $cell = $(this);
+            $cell.removeClass('modified-price-cell');
+            $cell.find('.reset-price-btn').hide();
+        });
+
+        // Recalculate profits and update colors
+        MyApp.table.updateProfitTable();
+    });
+
 
     // Tier toggle buttons
     $('.toggle-row').off('click').on('click', function() {
