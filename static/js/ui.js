@@ -188,46 +188,50 @@ function attachEventListeners(priceTable, profitTable) {
     });
 
 
-// Event listener for refresh database button
-$('#refresh-database').off('click').on('click', function() {
-    var $this = $(this);
-    // Update the button text to show the loading state
-    $this.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
-    
-    // Call the refreshDatabase function
-    MyApp.api.refreshDatabase().then((message) => {
-        console.log(message);
+    // Event listener for refresh database button
+    $('#refresh-database').off('click').on('click', function() {
+        var $this = $(this);
+        // Update the button text to show the loading state
+        $this.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
+        
+        // Call the refreshDatabase function
+        MyApp.api.refreshDatabase().then((message) => {
+            console.log(message);
 
-        // Fetch the updated data
-        return MyApp.api.fetchData();
-    }).then((data) => {
-        // Update MyApp.data with the new data
-        const { grouped_items, material_groups, material_properties } = data;
+            // Fetch the updated data
+            return MyApp.api.fetchData();
+        }).then((data) => {
+            // Update MyApp.data with the new data
+            const { grouped_items, material_groups, material_properties } = data;
 
-        // Convert material_properties array to an object keyed by item_name
-        const materialProps = {};
-        material_properties.forEach(item => {
-            materialProps[item.item_name] = item;
+            // Convert material_properties array to an object keyed by item_name
+            const materialProps = {};
+            material_properties.forEach(item => {
+                materialProps[item.item_name] = item;
+            });
+
+            MyApp.data = {
+                grouped_items,
+                material_groups,
+                material_properties: materialProps,
+            };
+
+            // **Add this line to update original_grouped_items**
+            MyApp.data.original_grouped_items = JSON.parse(JSON.stringify(grouped_items));
+
+            // Re-initialize the tables with the new data
+            MyApp.initializeTables(MyApp.data);
+
+            // Reset the button text to "Refresh Database" on success
+            $this.text('Refresh Database');
+        }).catch((error) => {
+            console.error(error);
+            alert('Error refreshing database!');
+            // Reset the button text to "Retry" on failure
+            $this.text('Retry');
         });
-
-        MyApp.data = {
-            grouped_items,
-            material_groups,
-            material_properties: materialProps,
-        };
-
-        // Re-initialize the tables with the new data
-        MyApp.initializeTables(MyApp.data);
-
-        // Reset the button text to "Refresh Database" on success
-        $this.text('Refresh Database');
-    }).catch((error) => {
-        console.error(error);
-        alert('Error refreshing database!');
-        // Reset the button text to "Retry" on failure
-        $this.text('Retry');
     });
-});
+
 
 
     // Event Listener for auth-status button - refersh token when pressed

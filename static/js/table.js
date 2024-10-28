@@ -65,7 +65,7 @@ function updatePriceTable(priceType) {
         return;
     }
 
-    const allRows = priceTable.rows().nodes();
+    const allRows = priceTable.rows().nodes(); 
 
     $(allRows).find('.price-cell').each(function() {
         const $cell = $(this);
