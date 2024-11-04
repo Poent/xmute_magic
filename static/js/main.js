@@ -14,29 +14,29 @@
         try {
             const response = await MyApp.api.fetchData();
             console.log('Response:', response);
-
-            const { grouped_items, material_groups, material_properties } = response;
-
+    
+            const { market_data, material_groups, material_properties } = response;
+    
             // Convert material_properties array to an object keyed by item_name
             const materialProps = {};
-            material_properties.forEach(item => {
+            material_properties.thaumaturgy_ingredients.forEach(item => {
                 materialProps[item.item_name] = item;
             });
-
+    
             // Store data in MyApp namespace for global access
             MyApp.data = {
-                grouped_items,
+                market_data,
                 material_groups,
                 material_properties: materialProps
             };
-
-            // Make a deep copy of grouped_items to store original prices
-            MyApp.data.original_grouped_items = JSON.parse(JSON.stringify(grouped_items));
-
-            console.log('Grouped items:', grouped_items);
+    
+            // Make a deep copy of market_data to store original prices
+            MyApp.data.original_market_data = JSON.parse(JSON.stringify(market_data));
+    
+            console.log('Market Data:', market_data);
             console.log('Material groups:', material_groups);
             console.log('Material properties:', materialProps);
-
+    
             return MyApp.data; // Return the data for further processing
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -46,20 +46,20 @@
 
     // Function to initialize tables
     const initializeTables = (data) => {
-        const { grouped_items, material_groups, material_properties } = data;
+        const { market_data, material_groups, material_properties } = data;
 
         // Generate material buttons
-        MyApp.table.generateMaterialButtons(grouped_items, material_groups);
+        MyApp.table.generateMaterialButtons(market_data, material_groups);
 
         // Generate table headers for price and profit tables
-        MyApp.table.generateTableHeaders(grouped_items, '#price-table-header');
-        MyApp.table.generateTableHeaders(grouped_items, '#profit-table-header');
+        MyApp.table.generateTableHeaders(market_data, '#price-table-header');
+        MyApp.table.generateTableHeaders(market_data, '#profit-table-header');
 
         // Generate price table rows and initialize DataTable
-        MyApp.tables.priceTable = MyApp.table.generatePriceTableRows(grouped_items);
+        MyApp.tables.priceTable = MyApp.table.generatePriceTableRows(market_data);
 
         // Generate profit table rows and initialize DataTable
-        MyApp.tables.profitTable = MyApp.table.generateProfitTableRows(grouped_items, material_properties);
+        MyApp.tables.profitTable = MyApp.table.generateProfitTableRows(market_data, material_properties);
 
         // Attach event listeners
         MyApp.ui.attachEventListeners();
@@ -101,7 +101,7 @@
         // Attach event listeners to the refresh button
         MyApp.ui.attachAuthStatusEventListener();
 
-        // Check token status and fetch data if token is valid
+        // Check token status and fetch "data" if token is valid
         const isValid = await checkTokenStatus();
         if (isValid) {
             try {

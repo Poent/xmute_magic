@@ -19,9 +19,13 @@ function initializeDataTable(tableSelector) {
     });
 }
 
+// function to get the value of transmutagen. There are three types of transmutagen (groups) in the game that we need to consider
+// Ominous, Mercurial, and Volatile. When calculating the value of transmutagen, we need to take the value of the four possible result commodities, and then multiply them by the chance of getting that result.
+
 // Function to calculate profit for a given item and tier
-function calculateProfitForItem(itemName, tier, groupedItems, materialProperties, priceType) {
-    const itemData = groupedItems[itemName]?.[tier];
+function calculateProfitForItem(itemName, tier, marketData, materialProperties, priceType) {
+    // get item data for the given item and tier
+    const itemData = marketData[itemName]?.[tier];
     if (!itemData) {
         console.warn(`Warning: Item data for ${itemName} (Tier ${tier}) not found.`);
         return 0;
@@ -37,7 +41,7 @@ function calculateProfitForItem(itemName, tier, groupedItems, materialProperties
     let totalValue = 0;
 
     materialProp.transmutations.forEach(({ material, result_chance }) => {
-        const materialItemData = groupedItems[material]?.[tier];
+        const materialItemData = marketData[material]?.[tier];
         let marketValue = 0;
 
         if (materialItemData) {
@@ -72,7 +76,7 @@ function updatePriceTable(priceType) {
         const $priceText = $cell.find('.price-text');
         const itemName = $cell.attr('data-item-name');
         const tier = $cell.closest('tr').attr('data-tier');
-        const priceCopper = MyApp.data.grouped_items[itemName][tier][priceType];
+        const priceCopper = MyApp.data.market_data[itemName][tier][priceType];
         const priceFloat = priceCopper / 10000;
 
         if (!isNaN(priceFloat)) {
@@ -84,11 +88,11 @@ function updatePriceTable(priceType) {
 
 
 // Function to generate material buttons for toggling columns
-function generateMaterialButtons(groupedItems, materialGroups) {
+function generateMaterialButtons(marketData, materialGroups) {
     const $materialButtons = $('#material-buttons');
     $materialButtons.empty();
 
-    Object.keys(groupedItems).forEach(itemName => {
+    Object.keys(marketData).forEach(itemName => {
         const group = materialGroups[itemName] || '';
         const button = $('<button>')
             .addClass('toggle-column btn btn-outline-primary btn-sm active')
@@ -101,20 +105,20 @@ function generateMaterialButtons(groupedItems, materialGroups) {
     });
 }
 
-// Function to generate table headers dynamically based on groupedItems
-function generateTableHeaders(groupedItems, tableHeaderSelector) {
+// Function to generate table headers dynamically based on marketData
+function generateTableHeaders(marketData, tableHeaderSelector) {
     const $headerRow = $(tableHeaderSelector);
     $headerRow.empty();
 
     $headerRow.append('<th>Tier</th>');
 
-    Object.keys(groupedItems).forEach(itemName => {
+    Object.keys(marketData).forEach(itemName => {
         $headerRow.append(`<th>${itemName}</th>`);
     });
 }
 
 // Function to generate rows for the price table
-function generatePriceTableRows(groupedItems) {
+function generatePriceTableRows(marketData) {
     const $tableBody = $('#price-table-body');
 
     destroyDataTableIfExists('#price-table');
@@ -126,8 +130,8 @@ function generatePriceTableRows(groupedItems) {
         const $row = $('<tr>').addClass('tier-row').attr('data-tier', tier);
         $row.append(`<td>${tier}</td>`);
 
-        Object.keys(groupedItems).forEach(itemName => {
-            const itemData = groupedItems[itemName]?.[tier];
+        Object.keys(marketData).forEach(itemName => {
+            const itemData = marketData[itemName]?.[tier];
             let priceCell = '<td>N/A</td>';
 
             if (itemData) {
@@ -168,7 +172,7 @@ function generatePriceTableRows(groupedItems) {
 
 
 // Function to generate rows for the profit table
-function generateProfitTableRows(groupedItems, materialProperties) {
+function generateProfitTableRows(marketData, materialProperties) {
     const $tableBody = $('#transmutations-table-body');
 
     destroyDataTableIfExists('#transmutation-profit-table');
@@ -181,8 +185,8 @@ function generateProfitTableRows(groupedItems, materialProperties) {
         const $row = $('<tr>').addClass('tier-row').attr('data-tier', tier);
         $row.append(`<td>${tier}</td>`);
 
-        Object.keys(groupedItems).forEach(itemName => {
-            const profit = calculateProfitForItem(itemName, tier, groupedItems, materialProperties, selectedPriceType);
+        Object.keys(marketData).forEach(itemName => {
+            const profit = calculateProfitForItem(itemName, tier, marketData, materialProperties, selectedPriceType);
             profits.push(profit);
 
             const profitCell = `<td class="profit" data-item-name="${itemName}">${profit.toFixed(2)} g</td>`;
@@ -218,7 +222,7 @@ function generateProfitTableRows(groupedItems, materialProperties) {
 // Function to update profits based on the grouped items and material properties
 function updateProfitTable() {
     const profitTable = MyApp.tables.profitTable;
-    const groupedItems = MyApp.data.grouped_items;
+    const marketData = MyApp.data.market_data;
     const materialProperties = MyApp.data.material_properties;
 
     if (!profitTable) {
@@ -240,7 +244,7 @@ function updateProfitTable() {
 
             if (!itemName) return;
 
-            const profit = calculateProfitForItem(itemName, tier, groupedItems, materialProperties, selectedPriceType);
+            const profit = calculateProfitForItem(itemName, tier, marketData, materialProperties, selectedPriceType);
             profits.push(profit);
 
             $cell.text(`${profit.toFixed(2)} g`);

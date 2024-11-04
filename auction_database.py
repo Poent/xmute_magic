@@ -137,7 +137,8 @@ class AuctionDatabase:
 
         # Step 2: Iterate over the xmute_items list and fetch matching items from the commodities table (last AH snapshot)
         print("Fetching new items...")
-        for item in xmute_items:
+        thaumaturgy_items = xmute_data.get("thaumaturgy_ingredients")
+        for item in thaumaturgy_items:
             print(f"Processing item: {item['item_name']}")
             item_name = item["item_name"]
             tiers = item["tiers"]  # Access the tiers list

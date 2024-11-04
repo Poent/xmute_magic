@@ -4,16 +4,23 @@ import json
 def load_xmute_commodities(file_path='xmute_commodities.json'):
     """Load the xmute_commodities.json file and return the list of thaumaturgy ingredients."""
     with open(file_path, 'r') as file:
-
-        return json.load(file)['thaumaturgy_ingredients']
+        return json.load(file)
 
 # Lookup function for item name based on ID
-def get_item_name_by_id(item_id, items):
-    """Search the list of thaumaturgy ingredients to find the name of an item by its ID."""
-    for item in items:
+def get_item_name_by_id(item_id, xmute_data):
+    """Search the JSON data to find the name of an item by its ID."""
+    
+    # Search in thaumaturgy_ingredients
+    for item in xmute_data.get("thaumaturgy_ingredients", []):
         for tier in item["tiers"]:
             if tier["item_id"] == item_id:
                 return item["item_name"]
+    
+    # Search in crystalized
+    for item in xmute_data.get("crystalized", []):
+        if item["item_id"] == item_id:
+            return item["item_name"]
+    
     return "Item ID not found"
 
 

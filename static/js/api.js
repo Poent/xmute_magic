@@ -47,8 +47,12 @@ async function refreshDatabase() {
     }
 }
 
-// Function to fetch data and return the response
-async function fetchData() {
+/**
+ * Fetches data from the server and returns the response.
+ * 
+ * @returns {Promise<Object>} The response data from the server.
+ */
+async function fetchSummaryData() {
     return await fetchJSON('/database/summary');
 }
 
@@ -69,5 +73,5 @@ window.MyApp.api = {
     checkTokenStatus,
     refreshDatabase,
     refreshToken,
-    fetchData,
+    fetchData: fetchSummaryData,
 };

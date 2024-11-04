@@ -14,6 +14,7 @@ function attachEventListeners(priceTable, profitTable) {
     });
 
    // Material buttons event listener
+   // This event listener is attached to the parent element of the material buttons and will toggle the table column visibility based on the data-item-name attribute
    $('#material-buttons').off('click', '.toggle-column').on('click', '.toggle-column', function() {
         var item_name = $(this).attr('data-item-name');
 
@@ -27,6 +28,7 @@ function attachEventListeners(priceTable, profitTable) {
     });
     
     // Handle 'blur', 'keydown', and 'focusout' events on price text
+    // This allows the user to edit the price by clicking on it, and will commit the edit when the user clicks away or presses Enter
     $('#price-table tbody').off('blur keydown focusout', '.price-text').on('blur keydown focusout', '.price-text', function(e) {
         var $priceText = $(this);
         var $cell = $priceText.closest('td');
@@ -47,8 +49,8 @@ function attachEventListeners(priceTable, profitTable) {
             var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
 
             if (!isNaN(newPrice)) {
-                // Update grouped_items with new price
-                MyApp.data.grouped_items[itemName][tier][selectedPriceType] = newPrice * 10000; // Convert back to copper
+                // Update market_data with new price
+                MyApp.data.market_data[itemName][tier][selectedPriceType] = newPrice * 10000; // Convert back to copper
 
                 // Recalculate profits and update colors
                 MyApp.table.updateProfitTable();
@@ -63,7 +65,7 @@ function attachEventListeners(priceTable, profitTable) {
                 $cell.find('.reset-price-btn').show();
             } else {
                 // If the input is not a valid number, reset the price text to the previous value
-                var originalPriceCopper = MyApp.data.grouped_items[itemName][tier][selectedPriceType];
+                var originalPriceCopper = MyApp.data.market_data[itemName][tier][selectedPriceType];
                 var originalPriceGold = (originalPriceCopper / 10000).toFixed(2);
                 $priceText.text(`${originalPriceGold} g`);
 
@@ -75,6 +77,7 @@ function attachEventListeners(priceTable, profitTable) {
     });
 
     // Handle reset button clicks
+    // This button resets the price of an individual item to the original value
     $('#price-table tbody').on('click', '.reset-price-btn', function(e) {
         e.preventDefault();
         e.stopPropagation(); // Prevent event from bubbling up
@@ -87,15 +90,15 @@ function attachEventListeners(priceTable, profitTable) {
         var tier = $cell.closest('tr').attr('data-tier');
         var selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
 
-        // Get the original price from MyApp.data.original_grouped_items
-        var originalPriceCopper = MyApp.data.original_grouped_items[itemName][tier][selectedPriceType];
+        // Get the original price from MyApp.data.original_market_data
+        var originalPriceCopper = MyApp.data.original_market_data[itemName][tier][selectedPriceType];
         var originalPriceGold = (originalPriceCopper / 10000).toFixed(2);
 
         // Update the price text
         $priceText.text(`${originalPriceGold} g`);
 
-        // Update grouped_items with original price
-        MyApp.data.grouped_items[itemName][tier][selectedPriceType] = originalPriceCopper;
+        // Update market_data with original price
+        MyApp.data.market_data[itemName][tier][selectedPriceType] = originalPriceCopper;
 
         // Remove modified class and hide reset button
         $cell.removeClass('modified-price-cell');
@@ -106,8 +109,8 @@ function attachEventListeners(priceTable, profitTable) {
     });
 
 
-
     // Group buttons
+    // this button will toggle the visibility of GROUPS of materials based on the data-group attribute
     $('.toggle-group').off('click').on('click', function() {
         var groupName = $(this).attr('data-group');
     
@@ -159,8 +162,8 @@ function attachEventListeners(priceTable, profitTable) {
 
         const selectedPriceType = $('input[name="priceType"]:checked').val() || 'market_value';
 
-        // Reset grouped_items to original values
-        MyApp.data.grouped_items = JSON.parse(JSON.stringify(MyApp.data.original_grouped_items));
+        // Reset market_data to original values
+        MyApp.data.market_data = JSON.parse(JSON.stringify(MyApp.data.original_market_data));
 
         // Update the price table
         MyApp.table.updatePriceTable(selectedPriceType);
@@ -202,22 +205,22 @@ function attachEventListeners(priceTable, profitTable) {
             return MyApp.api.fetchData();
         }).then((data) => {
             // Update MyApp.data with the new data
-            const { grouped_items, material_groups, material_properties } = data;
+            const { market_data, material_groups, material_properties } = data;
 
             // Convert material_properties array to an object keyed by item_name
             const materialProps = {};
-            material_properties.forEach(item => {
+            material_properties.thaumaturgy_ingredients.forEach(item => {
                 materialProps[item.item_name] = item;
             });
 
             MyApp.data = {
-                grouped_items,
+                market_data,
                 material_groups,
                 material_properties: materialProps,
             };
 
-            // **Add this line to update original_grouped_items**
-            MyApp.data.original_grouped_items = JSON.parse(JSON.stringify(grouped_items));
+            // **Add this line to update original_market_data**
+            MyApp.data.original_market_data = JSON.parse(JSON.stringify(market_data));
 
             // Re-initialize the tables with the new data
             MyApp.initializeTables(MyApp.data);

@@ -23,12 +23,9 @@
             <button id="auth-status" class="btn btn-sm btn-secondary ml-3">Checking token...</button>
             <!-- Button to refresh the database -->
             <button id="refresh-database" class="btn btn-sm btn-primary ml-3">Refresh Database</button>
-            
         </h1>
         <!-- Last Updated Span -->
-        <!-- Remove inline style -->
         <span class="ml-3 last-updated">DB Last Updated: N/A</span>
-
 
         <!-- Card for AH Price List -->
         <div class="card">
@@ -36,7 +33,7 @@
 
             <!-- Row for Price Type, Toggle Materials, and Toggle Tiers -->
             <div class="row">
-                <!-- Left column: Price Type and Toggle Tiers stacked -->
+                <!-- Left column: Price Type, Toggle Tiers, and Transmutation Options -->
                 <div class="col-md-6">
                     <!-- Price Type -->
                     <div class="card mb-2">
@@ -55,13 +52,28 @@
                         </div>
                     </div>
 
-                    <!-- Toggle Tiers -->
-                    <div class="card">
-                        <div class="card-body">
-                            <h3>Toggle Tiers:</h3>
-                            <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T1" aria-pressed="true">Toggle T1</button>
-                            <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T2" aria-pressed="true">Toggle T2</button>
-                            <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T3" aria-pressed="true">Toggle T3</button>
+                    <!-- Nested Row for Toggle Tiers and Transmutation Options -->
+                    <div class="row">
+                        <!-- Toggle Tiers -->
+                        <div class="col-md-6">
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h3>Toggle Tiers:</h3>
+                                    <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T1" aria-pressed="true">Toggle T1</button>
+                                    <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T2" aria-pressed="true">Toggle T2</button>
+                                    <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T3" aria-pressed="true">Toggle T3</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transmutation Options -->
+                        <div class="col-md-6">
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h3>Transmutation Options:</h3>
+                                    <button id="toggle-t1-t2-transmutation" class="btn btn-outline-primary btn-sm active" aria-pressed="true">T1 -> T2</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

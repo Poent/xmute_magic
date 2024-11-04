@@ -10,7 +10,7 @@ from bnet_ah_api import BnetAhApi
 from bnet_auth_api import BnetAuthApi
 from utils import get_item_name_by_id, load_xmute_commodities
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 # Load the client_id and client_secret from the auth.json file
 try:
@@ -41,7 +41,14 @@ def datetimeformat(value):
 # function to derive material groups from xmute_data
 def get_material_groups(xmute_data):
     material_groups = {}
-    for item in xmute_data:  # xmute_data is a list
+    logging.info(f"xmute_data type: {type(xmute_data)}")
+    if isinstance(xmute_data, dict):
+        logging.info(f"xmute_data keys: {list(xmute_data.keys())}")
+
+    logging.debug(f"xmute_data: {xmute_data.get('thaumaturgy_ingredients', [])}")
+
+    for item in xmute_data.get('thaumaturgy_ingredients', []): # Access the thaumaturgy_ingredients section
+        logging.debug(f"item: {item}")
         item_name = item.get('item_name', '')
         transmutations = item.get('transmutations', [])
         group = None
@@ -61,13 +68,14 @@ def get_material_groups(xmute_data):
     return material_groups
 
 # function to group the items by material
-def get_grouped_items():
-    xmute_data = load_xmute_commodities()  # xmute_data is a list
+def get_market_data():
+    xmute_data = load_xmute_commodities()  # Load the entire JSON data
+    thaumaturgy_ingredients = xmute_data.get('thaumaturgy_ingredients', [])  # Access the thaumaturgy_ingredients section
     tracked_items_summary = db_handler.get_tracked_items_summary()
     item_summary_by_id = {item['item_id']: item for item in tracked_items_summary}
 
-    grouped_items = {}
-    for item in xmute_data:
+    market_data = {}
+    for item in thaumaturgy_ingredients:
         item_name = item.get('item_name', '')
         tiers = item.get('tiers', [])
         tier_data = {}
@@ -76,13 +84,13 @@ def get_grouped_items():
             tier_key = f'T{tier_number}' if tier_number else 'T0'
             item_id = tier.get('item_id')
             tier_data[tier_key] = item_summary_by_id.get(item_id, None)
-        grouped_items[item_name] = tier_data
-    return grouped_items
+        market_data[item_name] = tier_data
+    return market_data
 
 # function to return just the xmute data
 def get_xmute_data():
     xmute_data = load_xmute_commodities()
-    logging.info(f"xmute_data type: {type(xmute_data)}")
+    logging.debug(f"xmute_data type: {type(xmute_data)}")
     if isinstance(xmute_data, dict):
         logging.info(f"xmute_data keys: {list(xmute_data.keys())}")
     return xmute_data
@@ -129,10 +137,10 @@ def refresh_database():
 def database_summary():
     logging.info("Database summary route accessed")
     xmute_data = get_xmute_data()  # Retrieve xmute_data
-    grouped_items = get_grouped_items()
+    market_data = get_market_data()
     material_groups = get_material_groups(xmute_data)
     return jsonify({
-        'grouped_items': grouped_items,
+        'market_data': market_data,
         'material_groups': material_groups,
         'material_properties': xmute_data
     })
@@ -144,8 +152,8 @@ def database_xmute_data():
     xmute_data = get_xmute_data()
     return jsonify(xmute_data)
 
-# Print tracked items summary
-print(db_handler.get_tracked_items_summary())
+# Print tracked items summary (before updating the database)
+print("Tracked item summary: " + str(db_handler.get_tracked_items_summary()))
 
 if __name__ == "__main__":
     logging.info("Starting the Flask app")
@@ -163,3 +171,4 @@ if __name__ == "__main__":
 
     # Run the Flask app
     app.run(port=5001)
+
