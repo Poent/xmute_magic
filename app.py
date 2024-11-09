@@ -46,7 +46,6 @@ def get_material_groups(xmute_data):
         logging.info(f"xmute_data keys: {list(xmute_data.keys())}")
 
     logging.debug(f"xmute_data: {xmute_data.get('thaumaturgy_ingredients', [])}")
-
     for item in xmute_data.get('thaumaturgy_ingredients', []): # Access the thaumaturgy_ingredients section
         logging.debug(f"item: {item}")
         item_name = item.get('item_name', '')
