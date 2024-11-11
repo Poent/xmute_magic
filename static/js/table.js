@@ -40,14 +40,17 @@ function calculateProfitForItem(itemName, tier, marketData, materialProperties, 
     const originalItemCost = parseFloat(itemData[priceType]) / 10000;
     let totalValue = 0;
 
+    // Determine which tier to use for result materials
+    const resultTier = (tier === 'T1' && MyApp.state?.t1ToT2Enabled) ? 'T2' : tier;
+
     materialProp.transmutations.forEach(({ material, result_chance }) => {
-        const materialItemData = marketData[material]?.[tier];
+        const materialItemData = marketData[material]?.[resultTier];
         let marketValue = 0;
 
         if (materialItemData) {
             marketValue = parseFloat(materialItemData[priceType]) / 10000;
         } else {
-            console.warn(`Warning: Market data for ${material} (Tier ${tier}) not found.`);
+            console.warn(`Warning: Market data for ${material} (Tier ${resultTier}) not found.`);
         }
 
         totalValue += marketValue * result_chance;

@@ -116,6 +116,10 @@
             console.error("Token is invalid, cannot fetch data.");
         }
 
+        MyApp.state = {
+            t1ToT2Enabled: false
+        };
+
         // Set an interval to check the token status every 30 seconds
         setInterval(async () => {
             try {

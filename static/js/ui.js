@@ -26,6 +26,21 @@ function attachEventListeners(priceTable, profitTable) {
         // Toggle column visibility in both tables based on item_name
         toggleColumnVisibilityByItemName(item_name, isActive);
     });
+
+    // T1->T2 transmutation toggle
+    $('#toggle-t1-t2-transmutation').off('click').on('click', function() {
+        const $button = $(this);
+        
+        // Toggle state
+        MyApp.state.t1ToT2Enabled = !MyApp.state.t1ToT2Enabled;
+        
+        // Update button appearance - using same pattern as other toggle buttons
+        $button.toggleClass('active');
+        $button.attr('aria-pressed', MyApp.state.t1ToT2Enabled);
+        
+        // Recalculate profits with new mode
+        MyApp.table.updateProfitTable();
+    });
     
     // Handle 'blur', 'keydown', and 'focusout' events on price text
     // This allows the user to edit the price by clicking on it, and will commit the edit when the user clicks away or presses Enter

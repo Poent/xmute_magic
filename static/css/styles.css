@@ -46,3 +46,8 @@ th {
     margin-left: 5px;
     font-size: 0.8em;
 }
+
+/* When not active, maintain consistent button styling */
+#toggle-t1-t2-transmutation {
+    margin: 5px;
+}
