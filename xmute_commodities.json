@@ -11,7 +11,7 @@
               { "material": "Gloom Chitin", "result_chance": 0.16 },
               { "material": "Luredrop", "result_chance": 0.16 },
               { "material": "Orbinid", "result_chance": 0.16 },
-              { "material": "Ominous Transmutation", "result_chance": 0.16 }
+              { "material": "Ominous Transmutagen", "result_chance": 0.16 }
           ]
       },
       {
@@ -25,7 +25,7 @@
               { "material": "Ironclaw Ore", "result_chance": 0.16 },
               { "material": "Blessing Blossom", "result_chance": 0.16 },
               { "material": "Stormcharged Leather", "result_chance": 0.16 },
-              { "material": "Mercurial Transmutation", "result_chance": 0.16 }
+              { "material": "Mercurial Transmutagen", "result_chance": 0.16 }
           ]
       },
       {
@@ -39,7 +39,7 @@
               { "material": "Mycobloom", "result_chance": 0.16 },
               { "material": "Storm Dust", "result_chance": 0.16 },
               { "material": "Weavercloth", "result_chance": 0.16 },
-              { "material": "Volatile Transmutation", "result_chance": 0.16 }
+              { "material": "Volatile Transmutagen", "result_chance": 0.16 }
           ]
       },
       {
@@ -53,7 +53,7 @@
               { "material": "Arathor's Spear", "result_chance": 0.16 },
               { "material": "Ironclaw Ore", "result_chance": 0.16 },
               { "material": "Stormcharged Leather", "result_chance": 0.16 },
-              { "material": "Mercurial Transmutation", "result_chance": 0.16 }
+              { "material": "Mercurial Transmutagen", "result_chance": 0.16 }
           ]
       },
       {
@@ -67,7 +67,7 @@
               { "material": "Aqirite", "result_chance": 0.16 },
               { "material": "Orbinid", "result_chance": 0.16 },
               { "material": "Luredrop", "result_chance": 0.16 },
-              { "material": "Ominous Transmutation", "result_chance": 0.16 }
+              { "material": "Ominous Transmutagen", "result_chance": 0.16 }
           ]
       },
       {
@@ -81,7 +81,7 @@
               { "material": "Arathor's Spear", "result_chance": 0.16 },
               { "material": "Blessing Blossom", "result_chance": 0.16 },
               { "material": "Stormcharged Leather", "result_chance": 0.16 },
-              { "material": "Mercurial Transmutation", "result_chance": 0.16 }
+              { "material": "Mercurial Transmutagen", "result_chance": 0.16 }
           ]
       },
       {
@@ -95,7 +95,7 @@
               { "material": "Aqirite", "result_chance": 0.16 },
               { "material": "Gloom Chitin", "result_chance": 0.16 },
               { "material": "Orbinid", "result_chance": 0.16 },
-              { "material": "Ominous Transmutation", "result_chance": 0.16 }
+              { "material": "Ominous Transmutagen", "result_chance": 0.16 }
           ]
       },
       {
@@ -109,7 +109,7 @@
               { "material": "Bismuth", "result_chance": 0.16 },
               { "material": "Storm Dust", "result_chance": 0.16 },
               { "material": "Weavercloth", "result_chance": 0.16 },
-              { "material": "Volatile Transmutation", "result_chance": 0.16 }
+              { "material": "Volatile Transmutagen", "result_chance": 0.16 }
           ]
       },
       {
@@ -123,7 +123,7 @@
               { "material": "Aqirite", "result_chance": 0.16 },
               { "material": "Gloom Chitin", "result_chance": 0.16 },
               { "material": "Luredrop", "result_chance": 0.16 },
-              { "material": "Ominous Transmutation", "result_chance": 0.16 }
+              { "material": "Ominous Transmutagen", "result_chance": 0.16 }
           ]
       },
       {
@@ -137,7 +137,7 @@
               { "material": "Bismuth", "result_chance": 0.16 },
               { "material": "Mycobloom", "result_chance": 0.16 },
               { "material": "Weavercloth", "result_chance": 0.16 },
-              { "material": "Volatile Transmutation", "result_chance": 0.16 }
+              { "material": "Volatile Transmutagen", "result_chance": 0.16 }
           ]
       },
       {
@@ -151,7 +151,7 @@
               { "material": "Arathor's Spear", "result_chance": 0.16 },
               { "material": "Blessing Blossom", "result_chance": 0.16 },
               { "material": "Ironclaw Ore", "result_chance": 0.16 },
-              { "material": "Mercurial Transmutation", "result_chance": 0.16 }
+              { "material": "Mercurial Transmutagen", "result_chance": 0.16 }
           ]
       },
       {
@@ -165,13 +165,13 @@
               { "material": "Bismuth", "result_chance": 0.16 },
               { "material": "Mycobloom", "result_chance": 0.16 },
               { "material": "Storm Dust", "result_chance": 0.16 },
-              { "material": "Volatile Transmutation", "result_chance": 0.16 }
+              { "material": "Volatile Transmutagen", "result_chance": 0.16 }
           ]
       }
   ],
   "transmutagen": [
       {
-          "item_name": "Ominous Transmutation",
+          "item_name": "Ominous Transmutagen",
           "results": [
               { "material": "Aqirite", "result_chance": 0.12 },
               { "material": "Gloom Chitin", "result_chance": 0.12 },
@@ -180,7 +180,7 @@
           ]
         },
         {
-            "item_name": "Mercurial Transmutation",
+            "item_name": "Mercurial Transmutagen",
             "results": [
                 { "material": "Arathor's Spear", "result_chance": 0.12 },
                 { "material": "Blessing Blossom", "result_chance": 0.12 },
@@ -189,7 +189,7 @@
             ]
         },
         {
-            "item_name": "Volatile Transmutation",
+            "item_name": "Volatile Transmutagen",
             "results": [
                 { "material": "Bismuth", "result_chance": 0.12 },
                 { "material": "Mycobloom", "result_chance": 0.12 },
@@ -204,7 +204,6 @@
         { "item_name": "Radiant Ruby", "item_id": 212495 },
         { "item_name": "Stunning Sapphire", "item_id": 212508 },
         { "item_name": "Ostentatious Onyx", "item_id": 212511},
-        { "item_name": "Gleaming transmutagen", "item_id": 211805 },
         { "item_name": "Blasphemite", "item_id": 212514 }
     ]
 }

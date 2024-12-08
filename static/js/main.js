@@ -15,7 +15,9 @@
             const response = await MyApp.api.fetchData();
             console.log('Response:', response);
     
-            const { market_data, material_groups, material_properties } = response;
+            const { market_data, material_groups, material_properties, crystalized_data } = response;
+
+            const transmutagen_data = material_properties.transmutagen;
     
             // Convert material_properties array to an object keyed by item_name
             const materialProps = {};
@@ -27,7 +29,9 @@
             MyApp.data = {
                 market_data,
                 material_groups,
-                material_properties: materialProps
+                material_properties: materialProps,
+                crystalized_data,
+                transmutagen_data
             };
     
             // Make a deep copy of market_data to store original prices
@@ -36,6 +40,8 @@
             console.log('Market Data:', market_data);
             console.log('Material groups:', material_groups);
             console.log('Material properties:', materialProps);
+            console.log('Crystalized data:', crystalized_data);
+            console.log('Transmutagen data:', transmutagen_data);
     
             return MyApp.data; // Return the data for further processing
         } catch (error) {
@@ -58,8 +64,15 @@
         // Generate price table rows and initialize DataTable
         MyApp.tables.priceTable = MyApp.table.generatePriceTableRows(market_data);
 
+        // Generate transmutagen table rows and initialize DataTable
+        MyApp.tables.transmutagenTable = MyApp.table.generateTransmutagenTableRows(MyApp.data.transmutagen_data, MyApp.data.market_data);
+
+        // Generate crystalized data table rows and initialize DataTable
+        MyApp.tables.crystalizedTable = MyApp.table.generateCrystalizedTableRows(data.crystalized_data);
+
         // Generate profit table rows and initialize DataTable
         MyApp.tables.profitTable = MyApp.table.generateProfitTableRows(market_data, material_properties);
+
 
         // Attach event listeners
         MyApp.ui.attachEventListeners();
@@ -98,6 +111,11 @@
     $(document).ready(async () => {
         console.log("Document ready!");
 
+        MyApp.state = {
+            t1ToT2Enabled: false,
+            includeTransmutagenValue: false
+        };
+
         // Attach event listeners to the refresh button
         MyApp.ui.attachAuthStatusEventListener();
 
@@ -116,9 +134,7 @@
             console.error("Token is invalid, cannot fetch data.");
         }
 
-        MyApp.state = {
-            t1ToT2Enabled: false
-        };
+
 
         // Set an interval to check the token status every 30 seconds
         setInterval(async () => {

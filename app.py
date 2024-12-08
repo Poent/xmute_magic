@@ -53,13 +53,13 @@ def get_material_groups(xmute_data):
         group = None
         for transmutation in transmutations:
             material = transmutation.get('material', '')
-            if "Mercurial Transmutation" in material:
+            if "Mercurial Transmutagen" in material:
                 group = "Mercurial"
                 break  # Found the group, no need to check further
-            elif "Ominous Transmutation" in material:
+            elif "Ominous Transmutagen" in material:
                 group = "Ominous"
                 break
-            elif "Volatile Transmutation" in material:
+            elif "Volatile Transmutagen" in material:
                 group = "Volatile"
                 break
         if group:
@@ -85,6 +85,29 @@ def get_market_data():
             tier_data[tier_key] = item_summary_by_id.get(item_id, None)
         market_data[item_name] = tier_data
     return market_data
+
+def get_crystalized_data():
+    xmute_data = load_xmute_commodities()  # Load the entire JSON data
+    crystalized_items = xmute_data.get('crystalized', [])
+    tracked_items_summary = db_handler.get_tracked_items_summary()
+
+    print(f"\n\ntracked_items_summary: {tracked_items_summary}\n\n")
+
+    # Create a dict keyed by item_id for quick lookup
+    summary_by_id = {item['item_id']: item for item in tracked_items_summary}
+
+    crystalized_data = {}
+    for c_item in crystalized_items:
+        item_id = c_item['item_id']
+        if item_id in summary_by_id:
+            crystalized_data[c_item['item_name']] = summary_by_id[item_id]
+        else:
+            # If no market data, handle gracefully
+            crystalized_data[c_item['item_name']] = None
+
+    logging.debug(f"\n\ncrystalized_data: {crystalized_data}\n\n")
+
+    return crystalized_data
 
 # function to return just the xmute data
 def get_xmute_data():
@@ -131,6 +154,9 @@ def refresh_database():
         logging.error(f"Error refreshing database: {e}")
         return jsonify({'success': False, 'message': 'Error refreshing database'}), 500
 
+
+
+
 # Route to get the summary data of the tracked items from the database
 @app.route('/database/summary', methods=['GET'])
 def database_summary():
@@ -138,11 +164,19 @@ def database_summary():
     xmute_data = get_xmute_data()  # Retrieve xmute_data
     market_data = get_market_data()
     material_groups = get_material_groups(xmute_data)
+    crystalized_data = get_crystalized_data()
+
     return jsonify({
         'market_data': market_data,
         'material_groups': material_groups,
-        'material_properties': xmute_data
+        'material_properties': xmute_data,
+        'crystalized_data': crystalized_data
     })
+
+
+
+
+
 
 # Route to get the xmute_data json
 @app.route('/xmute_data', methods=['GET'])
@@ -169,5 +203,5 @@ if __name__ == "__main__":
     db_handler.update_tracked_items_summary()
 
     # Run the Flask app
-    app.run(port=5001)
+    app.run(host="0.0.0.0", port=5001)
 

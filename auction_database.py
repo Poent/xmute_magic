@@ -115,8 +115,9 @@ class AuctionDatabase:
         
     def store_tracked_items(db_handler, xmute_items):
         """Store or update tracked items in the database based on auction_id using the new JSON structure."""
+        
         print("Storing or updating tracked items...")
-        conn = sqlite3.connect(db_handler.db_path)
+        conn = sqlite3.connect(db_handler.db_path) #connect to the database
         cursor = conn.cursor()
 
         # Step 1: Set time_left to NULL for all tracked items and collect auction_ids of those aged out.
@@ -166,8 +167,30 @@ class AuctionDatabase:
                         INSERT OR REPLACE INTO tracked_items (auction_id, item_id, quantity, unit_price, time_left, timestamp)
                         VALUES (?, ?, ?, ?, ?, ?)
                     ''', (auction_id, item_id, quantity, unit_price, time_left, timestamp))
-
                     new_auctions_count += 1
+
+        # Process crystalized items
+        crystalized_items = xmute_data.get("crystalized", [])
+        for c_item in crystalized_items:
+            item_name = c_item["item_name"]
+            item_id = c_item["item_id"]
+
+            # Fetch matching items from the commodities table
+            cursor.execute('''
+                SELECT auction_id, item_id, quantity, unit_price, time_left, timestamp FROM commodities 
+                WHERE item_id = ?
+            ''', (item_id,))
+            new_items = cursor.fetchall()
+
+            for new_item in new_items:
+                auction_id, item_id, quantity, unit_price, time_left, timestamp = new_item
+                if auction_id in aged_out_auctions:
+                    aged_out_auctions.remove(auction_id)
+                cursor.execute('''
+                    INSERT OR REPLACE INTO tracked_items (auction_id, item_id, quantity, unit_price, time_left, timestamp)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ''', (auction_id, item_id, quantity, unit_price, time_left, timestamp))
+                new_auctions_count += 1
 
         # Step 4: Calculate the number of aged-out auctions that did not get updated (those still in aged_out_auctions)
         aged_out_count = len(aged_out_auctions)
@@ -182,6 +205,7 @@ class AuctionDatabase:
 
     def update_tracked_items_summary(self):
         """Gathers summary data from tracked_items and overwrites tracked_items_summary with the latest data."""
+        
         print("Updating tracked_items_summary table...")
         try:
             conn = sqlite3.connect(self.db_path)

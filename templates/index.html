@@ -29,114 +29,200 @@
 
         <!-- Card for AH Price List -->
         <div class="card">
-            <h2>Current AH Price List</h2>
-
-            <!-- Row for Price Type, Toggle Materials, and Toggle Tiers -->
-            <div class="row">
-                <!-- Left column: Price Type, Toggle Tiers, and Transmutation Options -->
-                <div class="col-md-6">
-                    <!-- Price Type -->
-                    <div class="card mb-2">
-                        <div class="card-body">
-                            <h3>Price Type:</h3>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="priceType" id="market_value" value="market_value" checked>
-                                <label class="form-check-label" for="market_value">Market Value</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="priceType" id="min_unit_price" value="min_unit_price">
-                                <label class="form-check-label" for="min_unit_price">Min Unit Price</label>
-                            </div>
-                            <!-- Reset All Prices Button --> 
-                            <button id="reset-all-prices" class="btn btn-outline-secondary btn-sm">Reset All Prices</button>
-                        </div>
-                    </div>
-
-                    <!-- Nested Row for Toggle Tiers and Transmutation Options -->
+            <div class="card-header compact-header">
+                <span class="header-text">Settings and Filters</span>
+                <button class="btn btn-link float-right" type="button" data-toggle="collapse" data-target="#settings-filters-content" aria-expanded="true" aria-controls="settings-filters-content">
+                    <span class="collapse-icon">▼</span>
+                </button>
+            </div>
+            <div id="settings-filters-content" class="collapse show">
+                <div class="card-body">
+                    <!-- Row for Price Type, Toggle Materials, and Toggle Tiers -->
                     <div class="row">
-                        <!-- Toggle Tiers -->
+                        <!-- Left column: Price Type, Toggle Tiers, and Transmutation Options -->
                         <div class="col-md-6">
+                            <!-- Price Type -->
                             <div class="card mb-2">
                                 <div class="card-body">
-                                    <h3>Toggle Tiers:</h3>
-                                    <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T1" aria-pressed="true">Toggle T1</button>
-                                    <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T2" aria-pressed="true">Toggle T2</button>
-                                    <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T3" aria-pressed="true">Toggle T3</button>
+                                    <h3>Price Type:</h3>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="priceType" id="market_value" value="market_value" checked>
+                                        <label class="form-check-label" for="market_value">Market Value</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="priceType" id="min_unit_price" value="min_unit_price">
+                                        <label class="form-check-label" for="min_unit_price">Min Unit Price</label>
+                                    </div>
+                                    <!-- Reset All Prices Button --> 
+                                    <button id="reset-all-prices" class="btn btn-outline-secondary btn-sm">Reset All Prices</button>
+                                </div>
+                            </div>
+
+                            <!-- Nested Row for Toggle Tiers and Transmutation Options -->
+                            <div class="row">
+                                <!-- Toggle Tiers -->
+                                <div class="col-md-6">
+                                    <div class="card mb-2">
+                                        <div class="card-body">
+                                            <h3>Toggle Tiers:</h3>
+                                            <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T1" aria-pressed="true">Toggle T1</button>
+                                            <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T2" aria-pressed="true">Toggle T2</button>
+                                            <button class="toggle-row btn btn-outline-primary btn-sm active" data-tier="T3" aria-pressed="true">Toggle T3</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Transmutation Options -->
+                                <div class="col-md-6">
+                                    <div class="card mb-2">
+                                        <div class="card-body">
+                                            <h3>Profit Calculation Options:</h3>
+                                            <button id="toggle-t1-t2-transmutation" class="btn btn-outline-secondary btn-sm active" aria-pressed="true">T1 -> T2</button>
+                                            <button id="toggle-transmutagen-value" class="btn btn-outline-secondary btn-sm active" aria-pressed="false">Include Transmutagen</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Transmutation Options -->
+                        <!-- Right column: Toggle Materials and Transmutagen Groups -->
                         <div class="col-md-6">
-                            <div class="card mb-2">
+                            <!-- Toggle Materials -->
+                            <div class="card">
                                 <div class="card-body">
-                                    <h3>Transmutation Options:</h3>
-                                    <button id="toggle-t1-t2-transmutation" class="btn btn-outline-primary btn-sm active" aria-pressed="true">T1 -> T2</button>
+                                    <h3>Toggle Materials:</h3>
+                                    <!-- Reset Button -->
+                                    <button id="reset-materials" class="btn btn-outline-secondary btn-sm">Reset</button>
+                                    <!-- Material Buttons Container -->
+                                    <div id="material-buttons">
+                                        <!-- Material buttons will be dynamically inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Transmutagen Groups -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h3>Transmutagen Groups:</h3>
+                                    <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Mercurial">Mercurial Transmutagen</button>
+                                    <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Ominous">Ominous Transmutagen</button>
+                                    <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Volatile">Volatile Transmutagen</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Right column: Toggle Materials and Transmutagen Groups -->
-                <div class="col-md-6">
-                    <!-- Toggle Materials -->
-                    <div class="card">
-                        <div class="card-body">
-                            <h3>Toggle Materials:</h3>
-                            <!-- Reset Button -->
-                            <button id="reset-materials" class="btn btn-outline-secondary btn-sm">Reset</button>
-                            <!-- Material Buttons Container -->
-                            <div id="material-buttons">
-                                <!-- Material buttons will be dynamically inserted here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Transmutagen Groups -->
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h3>Transmutagen Groups:</h3>
-                            <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Mercurial">Mercurial Transmutagen</button>
-                            <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Ominous">Ominous Transmutagen</button>
-                            <button class="toggle-group btn btn-outline-secondary btn-sm" data-group="Volatile">Volatile Transmutagen</button>
-                        </div>
-                    </div>
-                </div>
             </div>
-
-            <!-- Table for commodities -->
-            <div class="table-responsive">
-                <table id="price-table" class="display table table-striped table-bordered">
-                    <thead>
-                        <tr id="price-table-header">
-                            <!-- Table headers will be dynamically inserted here -->
-                        </tr>
-                    </thead>
-                    <tbody id="price-table-body">
-                        <!-- Table body will be dynamically inserted here -->
-                    </tbody>
-                </table>
-            </div>
-
         </div>
+
+        <!-- Card for Current AH Price List -->
+        <div class="card mt-3">
+            <div class="card-header compact-header">
+                <span class="main-header-text">Alchemical Source Commodity Prices</span>
+                <button class="btn btn-link float-right" type="button" data-toggle="collapse" data-target="#ah-price-list-content" aria-expanded="true" aria-controls="ah-price-list-content">
+                    <span class="collapse-icon">▼</span>
+                </button>
+            </div>
+            <div id="ah-price-list-content" class="collapse show">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="price-table" class="display table table-striped table-bordered">
+                            <thead>
+                                <tr id="price-table-header">
+                                    <!-- Table headers will be dynamically inserted here -->
+                                </tr>
+                            </thead>
+                            <tbody id="price-table-body">
+                                <!-- Table body will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header compact-header">
+                        <span class="main-header-text">Transmutagen Values</span>
+                        <button class="btn btn-link float-right" type="button" data-toggle="collapse" data-target="#transmutagen-items-content" aria-expanded="true" aria-controls="transmutagen-items-content">
+                            <span class="collapse-icon">▼</span>
+                        </button>
+                    </div>
+                    <div id="transmutagen-items-content" class="collapse show">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="transmutagen-table" class="display table table-striped table-bordered">
+                                    <thead>
+                                        <tr id="transmutagen-table-header">
+                                            <!-- Headers generated dynamically -->
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transmutagen-table-body">
+                                        <!-- Body generated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <!-- Card for Crystalized Items -->
+                <div class="card">
+                    <div class="card-header compact-header">
+                        <span class="main-header-text">Crystalized Items</span>
+                        <button class="btn btn-link float-right" type="button" data-toggle="collapse" data-target="#crystalized-items-content" aria-expanded="true" aria-controls="crystalized-items-content">
+                            <span class="collapse-icon">▼</span>
+                        </button>
+                    </div>
+                    <div id="crystalized-items-content" class="collapse show">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="crystalized-table" class="display table table-striped table-bordered">
+                                    <thead>
+                                        <tr id="crystalized-table-header">
+                                            <!-- Table headers will be dynamically inserted here -->
+                                        </tr>
+                                    </thead>
+                                    <tbody id="crystalized-table-body">
+                                        <!-- Table body will be dynamically inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Card for Transmutation Profit -->
         <div class="card mt-3">
-            <h2>Transmutation Profit</h2>
-
-            <!-- Table for transmutation profit -->
-            <div class="table-responsive">
-                <table id="transmutation-profit-table" class="display table table-striped table-bordered">
-                    <thead>
-                        <tr id="profit-table-header">
-                            <!-- Table headers will be dynamically inserted here -->
-                        </tr>
-                    </thead>
-                    <tbody id="transmutations-table-body">
-                        <!-- Table body will be dynamically inserted here -->
-                    </tbody>
-                </table>
+            <div class="card-header compact-header">
+                <span class="main-header-text">Transmutation Profit</span>
+                <button class="btn btn-link float-right" type="button" data-toggle="collapse" data-target="#transmutation-profit-content" aria-expanded="true" aria-controls="transmutation-profit-content">
+                    <span class="collapse-icon">▼</span>
+                </button>
+            </div>
+            <div id="transmutation-profit-content" class="collapse show">
+                <div class="card-body">
+                    <!-- Table for transmutation profit -->
+                    <div class="table-responsive">
+                        <table id="transmutation-profit-table" class="display table table-striped table-bordered">
+                            <thead>
+                                <tr id="profit-table-header">
+                                    <!-- Table headers will be dynamically inserted here -->
+                                </tr>
+                            </thead>
+                            <tbody id="transmutations-table-body">
+                                <!-- Table body will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>        
     </div>

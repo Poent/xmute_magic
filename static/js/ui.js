@@ -9,9 +9,32 @@ function attachEventListeners(priceTable, profitTable) {
     $('input[name="priceType"]').off('change').on('change', function() {
         var selectedPriceType = $('input[name="priceType"]:checked').val();
         MyApp.table.updatePriceTable(selectedPriceType);
+        MyApp.table.updateCrystalizedTable(selectedPriceType);
+        MyApp.table.updateTransmutagenTable(selectedPriceType);
         // Recalculate profits
         MyApp.table.updateProfitTable();
     });
+
+    // ui.js
+    
+    // Include Transmutagen Value in Profit toggle
+    $('#toggle-transmutagen-value').off('click').on('click', function() {
+        const wasEnabled = MyApp.state.includeTransmutagenValue;
+        MyApp.state.includeTransmutagenValue = !wasEnabled;
+
+        // Toggle classes based on state
+        if (MyApp.state.includeTransmutagenValue) {
+            $(this).removeClass('btn-outline-secondary').addClass('btn-primary active');
+            $(this).attr('aria-pressed', 'true').text('Exclude Transmutagen');
+        } else {
+            $(this).removeClass('btn-primary active').addClass('btn-outline-secondary');
+            $(this).attr('aria-pressed', 'false').text('Include Transmutagen');
+        }
+
+        // Recalculate and update profit table
+        MyApp.table.updateProfitTable();
+    });
+
 
    // Material buttons event listener
    // This event listener is attached to the parent element of the material buttons and will toggle the table column visibility based on the data-item-name attribute
@@ -126,32 +149,58 @@ function attachEventListeners(priceTable, profitTable) {
 
     // Group buttons
     // this button will toggle the visibility of GROUPS of materials based on the data-group attribute
+    // Group buttons event handler
     $('.toggle-group').off('click').on('click', function() {
         var groupName = $(this).attr('data-group');
+        var priceTable = MyApp.tables.priceTable;
+        var profitTable = MyApp.tables.profitTable;
+
+        console.log('Group clicked:', groupName);
+        console.log('Price table columns:', priceTable.columns().nodes().length);
+        console.log('Materials in group:', $('.toggle-column[data-group="' + groupName + '"]').length);
     
+        // Log each material's name in the group
+        $('.toggle-column[data-group="' + groupName + '"]').each(function() {
+            console.log('Material:', $(this).attr('data-item-name'));
+        });
+
         // Deactivate other group buttons
         $('.toggle-group').removeClass('active').attr('aria-pressed', false);
-    
+
         // Activate clicked button
         $(this).addClass('active').attr('aria-pressed', true);
-    
+
         // Deactivate all material buttons
         $('.toggle-column').removeClass('active').attr('aria-pressed', false);
-    
-        // Hide all columns except 'Tier'
-        priceTable.columns().visible(false);
-        priceTable.column(0).visible(true); // Keep 'Tier' column visible
-        profitTable.columns().visible(false);
-        profitTable.column(0).visible(true); // Keep 'Tier' column visible
-    
+
+        // First, hide all columns
+        for (let i = 1; i < priceTable.columns().nodes().length; i++) {
+            priceTable.column(i).visible(false);
+            profitTable.column(i).visible(false);
+        }
+        
+        // Keep 'Tier' column visible (first column)
+        priceTable.column(0).visible(true);
+        profitTable.column(0).visible(true);
+
         // Show columns for materials in the selected group
         $('.toggle-column[data-group="' + groupName + '"]').each(function() {
             $(this).addClass('active').attr('aria-pressed', true);
-            var item_name = $(this).attr('data-item-name');
-    
-            // Show columns by item name
-            toggleColumnVisibilityByItemName(item_name, true);
+            var itemName = $(this).attr('data-item-name');
+            
+            // Find and show columns by matching header text
+            priceTable.columns().every(function(index) {
+                var header = $(this.header()).text().trim();
+                if (header === itemName) {
+                    priceTable.column(index).visible(true);
+                    profitTable.column(index).visible(true);
+                }
+            });
         });
+
+        // Redraw tables to reflect changes
+        priceTable.columns.adjust().draw(false);
+        profitTable.columns.adjust().draw(false);
     });
     
 

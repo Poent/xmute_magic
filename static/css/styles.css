@@ -5,7 +5,7 @@ table {
 }
 th, td {
     border: 1px solid black;
-    padding: 8px;
+    padding: 5px;
 }
 th {
     background-color: #333;
@@ -15,12 +15,36 @@ th {
     margin-bottom: 15px;
 }
 .card {
-    margin-top: 5px;
-    padding: 5px;
-    width: 100%;
+    margin: 10px;
+}
+.compact-header {
+    padding: 0.5rem 1rem; /* Adjust these values as needed */
+    margin-bottom: 0; /* Remove bottom margin */
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: space-between; /* Space between text and button */
+}
+
+.header-text {
+    font-weight: bold; /* Make text bold */
+    font-size: 1.25rem; /* Slightly larger text */
+}
+
+.main-header-text {
+    font-weight: bold; /* Make text bold */
+    font-size: 1.5rem; /* Larger text for main headers */
+}
+
+.card-body h3 {
+    font-size: 1rem; /* Smaller headers within settings and filters */
+    font-weight: bold; /* Make text bold */
 }
 .card-body {
-    padding: 5px;
+    padding: 4px;
+}
+.container-fluid {
+    padding: 0px;
+    margin: 0px;
 }
 .btn {
     margin: 5px;
