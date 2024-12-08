@@ -22,6 +22,8 @@ function attachEventListeners(priceTable, profitTable) {
         const wasEnabled = MyApp.state.includeTransmutagenValue;
         MyApp.state.includeTransmutagenValue = !wasEnabled;
 
+        console.log('Include Transmutagen Value:', MyApp.state.includeTransmutagenValue);
+
         // Toggle classes based on state
         if (MyApp.state.includeTransmutagenValue) {
             $(this).removeClass('btn-outline-secondary').addClass('btn-primary active');

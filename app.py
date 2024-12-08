@@ -45,25 +45,15 @@ def get_material_groups(xmute_data):
     if isinstance(xmute_data, dict):
         logging.info(f"xmute_data keys: {list(xmute_data.keys())}")
 
-    logging.debug(f"xmute_data: {xmute_data.get('thaumaturgy_ingredients', [])}")
-    for item in xmute_data.get('thaumaturgy_ingredients', []): # Access the thaumaturgy_ingredients section
-        logging.debug(f"item: {item}")
-        item_name = item.get('item_name', '')
-        transmutations = item.get('transmutations', [])
-        group = None
-        for transmutation in transmutations:
-            material = transmutation.get('material', '')
-            if "Mercurial Transmutagen" in material:
-                group = "Mercurial"
-                break  # Found the group, no need to check further
-            elif "Ominous Transmutagen" in material:
-                group = "Ominous"
-                break
-            elif "Volatile Transmutagen" in material:
-                group = "Volatile"
-                break
-        if group:
-            material_groups[item_name] = group
+    logging.debug(f"xmute_data: {xmute_data.get('transmutagen', [])}")
+    for transmutagen in xmute_data.get('transmutagen', []):  # Access the transmutagen section
+        logging.debug(f"transmutagen: {transmutagen}")
+        group = transmutagen.get('item_name', '')
+        results = transmutagen.get('results', [])
+        for result in results:
+            material = result.get('material', '')
+            if material:
+                material_groups[material] = group
     return material_groups
 
 # function to group the items by material

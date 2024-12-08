@@ -23,45 +23,67 @@ function initializeDataTable(tableSelector) {
 // Ominous, Mercurial, and Volatile. When calculating the value of transmutagen, we need to take the value of the four possible result commodities, and then multiply them by the chance of getting that result.
 
 function calculateProfitForItem(itemName, tier, marketData, materialProperties, priceType) {
+    // get the market_data for the CURRENT item (and tier)
     const itemData = marketData[itemName]?.[tier];
     if (!itemData) return 0;
 
+    // get the transmutation properties for the CURRENT item
     const materialProp = materialProperties[itemName];
     if (!materialProp) return 0;
 
     const originalItemCost = parseFloat(itemData[priceType]) / 10000;
+    console.log('Cost of ' + itemName + ' (base):', originalItemCost);
     let totalValue = 0;
 
-    // Determine which tier to use for result materials
-    const resultTier = (tier === 'T1' && MyApp.state?.t1ToT2Enabled) ? 'T2' : tier;
+    // Determine which tier to use for RESULTS based on T1->T2 toggle
+    let resultTier;
+    if (tier === 'T1' && MyApp.state?.t1ToT2Enabled) {
+        resultTier = 'T2';
+    } else {
+        resultTier = tier;
+    }
 
+    // Calculate the value of the regular materials obtained from this transmutation
     materialProp.transmutations.forEach(({ material, result_chance }) => {
         let marketValue = 0;
         const materialItemData = marketData[material]?.[resultTier];
 
         if (materialItemData && materialItemData[priceType] !== undefined) {
-            // Normal material from market_data
             marketValue = parseFloat(materialItemData[priceType]) / 10000;
-        } else {
-            // Not found in market_data, check if it's a transmutagen
-            const transmutagenEntry = MyApp.data.transmutagen_data.find(t => t.item_name === material);
-            if (transmutagenEntry && MyApp.state.includeTransmutagenValue) {
-                // Calculate transmutagen value
-                const transVal = calculateTransmutagenValue(transmutagenEntry, marketData, priceType);
-                marketValue = transVal;
-            } else {
-                // If it's a transmutagen and feature is disabled OR no match found, value = 0
-                marketValue = 0;
-            }
         }
 
         totalValue += marketValue * result_chance;
     });
 
-    // totalValue now includes normal materials and, if enabled, transmutagen values
+    // If transmutagen inclusion is enabled, add the value of the appropriate transmutagen
+    if (MyApp.state?.includeTransmutagenValue) {
+        // Determine the group of the current item (e.g. 'Ominous', 'Mercurial', or 'Volatile')
+        const groupName = MyApp.data.material_groups[itemName];
+        if (groupName) {
+            // Find the corresponding transmutagen entry by comparing groupName to each transmutagen's item_name
+            const transmutagenEntry = MyApp.data.transmutagen_data.find(entry =>
+                entry.item_name.toLowerCase() === groupName.toLowerCase()
+            );
+
+            if (transmutagenEntry) {
+                // Calculate the base value of one unit of this transmutagen type
+                const transValue = calculateTransmutagenValue(transmutagenEntry, marketData, priceType);
+
+                // Decide how many units of transmutagen we expect per transmutation
+                // For example, if we know it's always between 1 and 3, we might use an average like 2:
+                const averageTransQuantity = 2;
+
+                // Add the transmutagen value to totalValue
+                totalValue += transValue * averageTransQuantity / 20; // divide by 20 here because we have to transmute 20 items at a time (which return 2 transmutagens on average)
+            }
+        }
+    }
+
+    // Calculate and return profit
     const profit = totalValue - originalItemCost;
     return profit;
 }
+
 
 
 // Function to update prices based on the selected price type
@@ -95,7 +117,7 @@ function generateMaterialButtons(marketData, materialGroups) {
     const $materialButtons = $('#material-buttons');
     $materialButtons.empty();
     
-    console.log('Material Groups:', materialGroups);
+    //console.log('Material Groups:', materialGroups);
     
     Object.keys(marketData).forEach(itemName => {
         const group = materialGroups[itemName] || '';
@@ -191,17 +213,29 @@ function calculateTransmutagenValue(transmutagenEntry, marketData, priceType) {
     let total = 0;
     const tier = 'T1'; // Assuming T1 for calculations
 
+    /* DEBUG */      console.log('Transmutagen Entry:', transmutagenEntry);
+
     transmutagenEntry.results.forEach(result => {
         const materialName = result.material;
         const materialData = marketData[materialName]?.[tier];
+
         if (materialData && materialData[priceType] !== undefined) {
-            const materialValue = parseFloat(materialData[priceType]) / 10000; 
-            total += materialValue * result.result_chance;
+            const materialValue = materialData.market_value / 10000; 
+
+            ///* DEBUG */   console.log('Market Value for ' + materialName + ':', materialValue);
+            ///* DEBUG */console.log('Result Chance for ' + materialName + ':', result.result_chance);
+            let result_value = materialValue * result.result_chance;
+            
+            ///* DEBUG */   console.log('result_value for ' + materialName + ':', result_value.toFixed(2));
+
+            total += result_value;
+
         }
     });
 
-    // Divide by 20 because each transmutation requires 20 transmutagen
-    return total / 20;
+    console.log('=== Total value of ' + transmutagenEntry.item_name + ' transmutagen:', total.toFixed(2));
+
+    return total;
 }
 
 

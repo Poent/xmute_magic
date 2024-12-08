@@ -114,6 +114,7 @@
         MyApp.state = {
             t1ToT2Enabled: false,
             includeTransmutagenValue: false
+            
         };
 
         // Attach event listeners to the refresh button
