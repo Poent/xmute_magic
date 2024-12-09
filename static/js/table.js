@@ -32,7 +32,7 @@ function calculateProfitForItem(itemName, tier, marketData, materialProperties, 
     if (!materialProp) return 0;
 
     const originalItemCost = parseFloat(itemData[priceType]) / 10000;
-    console.log('Cost of ' + itemName + ' (base):', originalItemCost);
+    ///*DEBUG*/ console.log('Cost of ' + itemName + ' (base):', originalItemCost);
     let totalValue = 0;
 
     // Determine which tier to use for RESULTS based on T1->T2 toggle

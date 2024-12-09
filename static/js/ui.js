@@ -257,46 +257,43 @@ function attachEventListeners(priceTable, profitTable) {
     });
 
 
-    // Event listener for refresh database button
     $('#refresh-database').off('click').on('click', function() {
         var $this = $(this);
-        // Update the button text to show the loading state
         $this.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
-        
-        // Call the refreshDatabase function
+    
         MyApp.api.refreshDatabase().then((message) => {
             console.log(message);
-
-            // Fetch the updated data
             return MyApp.api.fetchData();
         }).then((data) => {
-            // Update MyApp.data with the new data
-            const { market_data, material_groups, material_properties } = data;
-
+            const { market_data, material_groups, material_properties, crystalized_data } = data;
+    
             // Convert material_properties array to an object keyed by item_name
             const materialProps = {};
             material_properties.thaumaturgy_ingredients.forEach(item => {
                 materialProps[item.item_name] = item;
             });
-
+    
+            // Extract transmutagen data consistently with initial load
+            const transmutagen_data = material_properties?.transmutagen || [];
+    
             MyApp.data = {
                 market_data,
                 material_groups,
                 material_properties: materialProps,
+                crystalized_data,
+                transmutagen_data // Now this will be consistently populated
             };
-
-            // **Add this line to update original_market_data**
+    
+            // Make a deep copy of market_data to store original prices
             MyApp.data.original_market_data = JSON.parse(JSON.stringify(market_data));
-
+    
             // Re-initialize the tables with the new data
             MyApp.initializeTables(MyApp.data);
-
-            // Reset the button text to "Refresh Database" on success
+    
             $this.text('Refresh Database');
         }).catch((error) => {
             console.error(error);
             alert('Error refreshing database!');
-            // Reset the button text to "Retry" on failure
             $this.text('Retry');
         });
     });

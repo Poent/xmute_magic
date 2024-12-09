@@ -16,9 +16,14 @@
             console.log('Response:', response);
     
             const { market_data, material_groups, material_properties, crystalized_data } = response;
-
-            const transmutagen_data = material_properties.transmutagen;
     
+            // Safely extract transmutagen data if it exists in material_properties
+            const transmutagen_data = material_properties?.transmutagen || [];
+            
+            console.log('Material Properties:', material_properties);
+            console.log('Transmutagen Data:', material_properties?.transmutagen);
+
+
             // Convert material_properties array to an object keyed by item_name
             const materialProps = {};
             material_properties.thaumaturgy_ingredients.forEach(item => {
@@ -31,7 +36,7 @@
                 material_groups,
                 material_properties: materialProps,
                 crystalized_data,
-                transmutagen_data
+                transmutagen_data // Ensure this is always defined, even if empty
             };
     
             // Make a deep copy of market_data to store original prices
@@ -49,10 +54,11 @@
             throw error; // Re-throw error to be caught by the caller
         }
     };
+    
 
     // Function to initialize tables
     const initializeTables = (data) => {
-        const { market_data, material_groups, material_properties } = data;
+        const { market_data, material_groups, material_properties, crystalized_data, transmutagen_data } = data;
 
         // Generate material buttons
         MyApp.table.generateMaterialButtons(market_data, material_groups);
@@ -64,15 +70,18 @@
         // Generate price table rows and initialize DataTable
         MyApp.tables.priceTable = MyApp.table.generatePriceTableRows(market_data);
 
-        // Generate transmutagen table rows and initialize DataTable
-        MyApp.tables.transmutagenTable = MyApp.table.generateTransmutagenTableRows(MyApp.data.transmutagen_data, MyApp.data.market_data);
+        // Generate transmutagen table rows and initialize DataTable, only if transmutagen_data is defined
+        if (transmutagen_data) {
+            MyApp.tables.transmutagenTable = MyApp.table.generateTransmutagenTableRows(transmutagen_data, market_data);
+        } else {
+            console.warn('Transmutagen Data is undefined. Skipping Transmutagen Table initialization.');
+        }
 
         // Generate crystalized data table rows and initialize DataTable
-        MyApp.tables.crystalizedTable = MyApp.table.generateCrystalizedTableRows(data.crystalized_data);
+        MyApp.tables.crystalizedTable = MyApp.table.generateCrystalizedTableRows(crystalized_data);
 
         // Generate profit table rows and initialize DataTable
         MyApp.tables.profitTable = MyApp.table.generateProfitTableRows(market_data, material_properties);
-
 
         // Attach event listeners
         MyApp.ui.attachEventListeners();
@@ -84,6 +93,7 @@
         // Update profits based on current prices
         MyApp.table.updateProfitTable();
     };
+
 
     // Function to check token status
     const checkTokenStatus = async () => {
