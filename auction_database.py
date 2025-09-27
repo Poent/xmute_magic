@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 import time
 import datetime
@@ -5,6 +6,8 @@ import datetime
 from utils import load_xmute_commodities, get_item_name_by_id
 
 xmute_data = load_xmute_commodities()
+
+logger = logging.getLogger(__name__)
 
 class AuctionDatabase:
     def __init__(self, db_path='commodities.db'):
@@ -60,14 +63,14 @@ class AuctionDatabase:
 
     def update_ah_snapshot(self, commodities):
         """Update the auction house snapshot by purging old data and inserting new commodities data."""
-        print("Updating auction house snapshot...")
+        logger.info("Updating auction house snapshot...")
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
             # Purge the old data
             cursor.execute('DELETE FROM commodities')
-            print("Old auction house data purged.")
+            logger.debug("Old auction house data purged.")
 
             timestamp = int(time.time())
 
@@ -86,10 +89,10 @@ class AuctionDatabase:
                 ))
 
             conn.commit()
-            print("New auction house snapshot inserted successfully.")
+            logger.info("New auction house snapshot inserted successfully.")
 
         except sqlite3.Error as e:
-            print(f"Database error during snapshot update: {e}")
+            logger.error("Database error during snapshot update: %s", e)
         finally:
             conn.close()
 
@@ -107,7 +110,7 @@ class AuctionDatabase:
             return columns, rows
 
         except sqlite3.Error as e:
-            print(f"Database error: {e}")
+            logger.error("Database error: %s", e)
             return None, None
         finally:
             conn.close()
@@ -116,12 +119,12 @@ class AuctionDatabase:
     def store_tracked_items(db_handler, xmute_items):
         """Store or update tracked items in the database based on auction_id using the new JSON structure."""
         
-        print("Storing or updating tracked items...")
+        logger.info("Storing or updating tracked items...")
         conn = sqlite3.connect(db_handler.db_path) #connect to the database
         cursor = conn.cursor()
 
         # Step 1: Set time_left to NULL for all tracked items and collect auction_ids of those aged out.
-        print("Aging out old items...")
+        logger.debug("Aging out old items...")
         cursor.execute('''
             UPDATE tracked_items 
             SET time_left = NULL
@@ -137,10 +140,10 @@ class AuctionDatabase:
         new_auctions_count = 0
 
         # Step 2: Iterate over the xmute_items list and fetch matching items from the commodities table (last AH snapshot)
-        print("Fetching new items...")
+        logger.debug("Fetching new items...")
         thaumaturgy_items = xmute_data.get("thaumaturgy_ingredients")
         for item in thaumaturgy_items:
-            print(f"Processing item: {item['item_name']}")
+            logger.debug("Processing item: %s", item['item_name'])
             item_name = item["item_name"]
             tiers = item["tiers"]  # Access the tiers list
 
@@ -199,21 +202,24 @@ class AuctionDatabase:
         conn.close()
 
         # Print the debug info
-        print(f"Number of auctions aged out (no match in latest snapshot): {aged_out_count}")
-        print(f"Number of new auctions processed: {new_auctions_count}")
+        logger.info(
+            "Number of auctions aged out (no match in latest snapshot): %s",
+            aged_out_count,
+        )
+        logger.info("Number of new auctions processed: %s", new_auctions_count)
 
 
     def update_tracked_items_summary(self):
         """Gathers summary data from tracked_items and overwrites tracked_items_summary with the latest data."""
         
-        print("Updating tracked_items_summary table...")
+        logger.info("Updating tracked_items_summary table...")
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
             # Step 1: Purge old summary data
             cursor.execute('DELETE FROM tracked_items_summary')
-            print("Old summary data purged.")
+            logger.debug("Old summary data purged.")
 
             # Step 2: Gather aggregated data from tracked_items
             cursor.execute('''
@@ -254,10 +260,10 @@ class AuctionDatabase:
                 ''', (item_id, get_item_name_by_id(item_id, xmute_data ), total_auctions, min_unit_price, market_value, row[4]))
 
             conn.commit()
-            print("tracked_items_summary updated successfully.")
+            logger.info("tracked_items_summary updated successfully.")
 
         except sqlite3.Error as e:
-            print(f"Database error: {e}")
+            logger.error("Database error: %s", e)
         finally:
             conn.close()
 
@@ -278,7 +284,7 @@ class AuctionDatabase:
             stats = cursor.fetchone()
             return stats
         except sqlite3.Error as e:
-            print(f"Database error: {e}")
+            logger.error("Database error: %s", e)
             return None
         finally:
             conn.close()
@@ -323,7 +329,7 @@ class AuctionDatabase:
                 "oldest_active_auction": oldest_active_timestamp
             }
         except sqlite3.Error as e:
-            print(f"Database error: {e}")
+            logger.error("Database error: %s", e)
             return None
         finally:
             conn.close()
@@ -340,17 +346,36 @@ class AuctionDatabase:
 
             # Print the summary
             if rows:
-                print("Tracked Items Summary:")
+                logger.info("Tracked Items Summary:")
                 for row in rows:
-                    item_id, item_name, total_auctions, min_unit_price, market_value, last_updated = row
-                    print(f"Item ID: {item_id}, Name: {item_name}, Total Auctions: {total_auctions}, "
-                        f"Min Price: {min_unit_price/10000:.2f}g, Market Value: {market_value/10000:.2f}g, "
-                        f"Last Updated: {datetime.datetime.fromtimestamp(last_updated)}")
+                    (
+                        item_id,
+                        item_name,
+                        total_auctions,
+                        min_unit_price,
+                        market_value,
+                        last_updated,
+                    ) = row
+                    min_price_str = (
+                        f"{min_unit_price/10000:.2f}g" if min_unit_price is not None else "N/A"
+                    )
+                    market_value_str = (
+                        f"{market_value/10000:.2f}g" if market_value is not None else "N/A"
+                    )
+                    logger.info(
+                        "Item ID: %s, Name: %s, Total Auctions: %s, Min Price: %s, Market Value: %s, Last Updated: %s",
+                        item_id,
+                        item_name,
+                        total_auctions,
+                        min_price_str,
+                        market_value_str,
+                        datetime.datetime.fromtimestamp(last_updated),
+                    )
             else:
-                print("No tracked item summary data available.")
-            
+                logger.info("No tracked item summary data available.")
+
         except sqlite3.Error as e:
-            print(f"Database error: {e}")
+            logger.error("Database error: %s", e)
         finally:
             conn.close()
 
@@ -381,7 +406,7 @@ class AuctionDatabase:
             return summary_data
 
         except sqlite3.Error as e:
-            print(f"Database error: {e}")
+            logger.error("Database error: %s", e)
             return None
         finally:
             conn.close()
