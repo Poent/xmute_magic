@@ -3,6 +3,8 @@
 ## Overview
 Xmute Magic is a Flask-based dashboard for monitoring World of Warcraft auction house commodities relevant to The War Within transmutation workflows. The application authenticates against the Battle.net API, downloads the latest commodity snapshot, stores it in SQLite, and exposes both HTML and JSON endpoints so you can review item availability and pricing trends for tracked materials.
 
+<img width="1668" height="1267" alt="2025-09-27_12h52_22" src="https://github.com/user-attachments/assets/92b046ad-05b1-4945-8714-564cfb3da524" />
+
 ### Architecture
 - **Flask application (`app.py`)** – Serves the HTML dashboard, exposes JSON endpoints, and orchestrates authentication, data refreshes, and database summarization on startup and via `/database/*` routes.【F:app.py†L7-L119】【F:app.py†L164-L198】
 - **Battle.net API clients** – `BnetAuthApi` handles OAuth client-credential flows and token persistence, while `BnetAhApi` performs authenticated commodity snapshot requests with retry handling.【F:bnet_auth_api.py†L1-L51】【F:bnet_ah_api.py†L1-L25】
