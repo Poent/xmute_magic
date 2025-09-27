@@ -1,7 +1,8 @@
 import datetime
-import json
 import logging
 import logging.config
+import os
+import json
 
 from flask import Flask, jsonify, render_template
 
@@ -12,14 +13,60 @@ from utils import get_item_name_by_id, load_xmute_commodities
 
 logging.basicConfig(level=logging.DEBUG)
 
-# Load the client_id and client_secret from the auth.json file
-try:
-    with open('auth.json', 'r') as file:
-        auth_data = json.load(file)
-        client_id = auth_data['client_id']
-        client_secret = auth_data['client_secret']
-except (FileNotFoundError, KeyError) as e:
-    raise RuntimeError("Error loading authentication data: {}".format(e))
+
+def load_credentials():
+    """Load Battle.net credentials from environment or optional config file."""
+    client_id = os.getenv("BNET_CLIENT_ID")
+    client_secret = os.getenv("BNET_CLIENT_SECRET")
+
+    missing_env = []
+    if not client_id:
+        missing_env.append("BNET_CLIENT_ID")
+    if not client_secret:
+        missing_env.append("BNET_CLIENT_SECRET")
+
+    if not missing_env:
+        return client_id, client_secret
+
+    config_path = os.getenv("BNET_AUTH_CONFIG")
+    if config_path:
+        logging.debug(f"Attempting to load credentials from {config_path}")
+        try:
+            with open(config_path, "r") as file:
+                auth_data = json.load(file)
+        except FileNotFoundError as exc:
+            raise RuntimeError(
+                f"Credential file '{config_path}' not found."
+            ) from exc
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(
+                f"Credential file '{config_path}' is not valid JSON."
+            ) from exc
+
+        client_id = client_id or auth_data.get("client_id")
+        client_secret = client_secret or auth_data.get("client_secret")
+
+    missing = []
+    if not client_id:
+        missing.append("client_id")
+    if not client_secret:
+        missing.append("client_secret")
+
+    if missing:
+        missing_env_vars = ", ".join(missing_env) if missing_env else "BNET_CLIENT_ID/BNET_CLIENT_SECRET"
+        config_msg = (
+            f" and the credential file '{config_path}'" if config_path else ""
+        )
+        raise RuntimeError(
+            "Missing Battle.net credentials. Set the environment variables "
+            f"{missing_env_vars}{config_msg}, or ensure the configuration contains the "
+            f"keys: {', '.join(missing)}."
+        )
+
+    return client_id, client_secret
+
+
+client_id, client_secret = load_credentials()
 
 # Flask app
 app = Flask(__name__)
