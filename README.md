@@ -3,6 +3,8 @@
 ## Overview
 Xmute Magic is a Flask-based dashboard for monitoring World of Warcraft auction house commodities relevant to The War Within transmutation workflows. The application authenticates against the Battle.net API, downloads the latest commodity snapshot, stores it in SQLite, and exposes both HTML and JSON endpoints so you can review item availability and pricing trends for tracked materials.
 
+NOTE: This tool IS NO LONGER PROFITABLE (and hasn't been for many months). I made several million gold with this at launch, but it is no longer viable and will not be AT LEAST until next expansion launch (at which point it will need to be completely refactored to accomodate new transmutation profession data and commodity IDs). At this point, this is nothing more than a historical archive for the project.
+
 <img width="1668" height="1267" alt="2025-09-27_12h52_22" src="https://github.com/user-attachments/assets/92b046ad-05b1-4945-8714-564cfb3da524" />
 
 ### Architecture
