@@ -1,4 +1,7 @@
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Load xmute_commodities.json data
 def load_xmute_commodities(file_path='xmute_commodities.json'):
@@ -44,24 +47,36 @@ def group_and_print_data(xmute_data, db_handler):
                 })
     
     for tier, items in grouped_results.items():
-        print(f"Tier: {tier}")
+        logger.info("Tier: %s", tier)
         for item in items:
             if item["min_unit_price"] is not None:
-                print(f"  {item['item_name']}, Active auctions: {item['active_auctions']}, Minimum unit price: {item['min_unit_price'] / 10000:.2f} g")
+                logger.info(
+                    "  %s, Active auctions: %s, Minimum unit price: %.2f g",
+                    item['item_name'],
+                    item['active_auctions'],
+                    item['min_unit_price'] / 10000,
+                )
             else:
-                print(f"  {item['item_name']}, Active auctions: {item['active_auctions']}, Minimum unit price: N/A")
+                logger.info(
+                    "  %s, Active auctions: %s, Minimum unit price: N/A",
+                    item['item_name'],
+                    item['active_auctions'],
+                )
 
 def print_table_stats(db_handler, table_name):
-    print(f"Stats for the {table_name} table:")
+    logger.info("Stats for the %s table:", table_name)
     table_stats = db_handler.get_table_stats(table_name)
-    
+
     if table_stats:
         total_auctions = table_stats.get("total_auctions")
         unique_items = table_stats.get("unique_item_ids")
         oldest_auction = table_stats.get("oldest_active_auction")
-        
-        print(f"    Total auctions: {total_auctions}, Unique items: {unique_items}, Oldest Auction: {oldest_auction}")
+
+        logger.info(
+            "    Total auctions: %s, Unique items: %s, Oldest Auction: %s",
+            total_auctions,
+            unique_items,
+            oldest_auction,
+        )
     else:
-        print("    No data available")
-
-
+        logger.info("    No data available")

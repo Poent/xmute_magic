@@ -1,7 +1,11 @@
+import logging
 import time
 import datetime
 from authlib.integrations.requests_client import OAuth2Session
 import json
+
+
+logger = logging.getLogger(__name__)
 
 class BnetAuthApi:
     def __init__(self, client_id, client_secret, token_file='token.json'):
@@ -19,19 +23,19 @@ class BnetAuthApi:
         """Check if the token is still valid."""
         if self.token:
             if self.token['expires_at'] < time.time():
-                print("Token expired.")
+                logger.info("Token expired.")
                 return False
             else:
                 expires_at = datetime.datetime.fromtimestamp(self.token['expires_at'])
-                print(f"Token is still valid, expires at {expires_at}")
+                logger.info("Token is still valid, expires at %s", expires_at)
                 return True
         else:
-            print("No token found.")
+            logger.warning("No token found.")
             return False
 
     def refresh_token(self):
         """Refresh the token."""
-        print("Refreshing token...")
+        logger.info("Refreshing token...")
         try:
             self.token = self.oauth.fetch_token(
                 'https://oauth.battle.net/token',
@@ -42,7 +46,7 @@ class BnetAuthApi:
             self.save_token(self.token, self.token_file)
             return True
         except Exception as e:
-            print(f"Failed to refresh token: {e}")
+            logger.error("Failed to refresh token: %s", e)
             return False
 
     @staticmethod

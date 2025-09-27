@@ -81,7 +81,7 @@ def get_crystalized_data():
     crystalized_items = xmute_data.get('crystalized', [])
     tracked_items_summary = db_handler.get_tracked_items_summary()
 
-    print(f"\n\ntracked_items_summary: {tracked_items_summary}\n\n")
+    logging.debug("tracked_items_summary: %s", tracked_items_summary)
 
     # Create a dict keyed by item_id for quick lookup
     summary_by_id = {item['item_id']: item for item in tracked_items_summary}
@@ -176,7 +176,7 @@ def database_xmute_data():
     return jsonify(xmute_data)
 
 # Print tracked items summary (before updating the database)
-print("Tracked item summary: " + str(db_handler.get_tracked_items_summary()))
+logging.info("Tracked item summary: %s", db_handler.get_tracked_items_summary())
 
 if __name__ == "__main__":
     logging.info("Starting the Flask app")
