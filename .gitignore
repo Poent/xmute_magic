@@ -3,6 +3,8 @@
 auth.json
 token.json
 
+.DS_Store
+
 *.db
 *.sqlite
 .venv
