@@ -2,6 +2,8 @@
 
 This project provides a Flask application for tracking World of Warcraft auction house commodities used in transmutes.
 
+<img width="1668" height="1267" alt="2025-09-27_12h52_22" src="https://github.com/user-attachments/assets/4637dfb9-c0ca-4d9e-9c62-906821e9042b" />
+
 ## Configuration
 
 The application requires Battle.net API credentials for authentication. Supply them securely through environment variables or a configuration file referenced by an environment variable.
