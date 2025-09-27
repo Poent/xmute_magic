@@ -84,4 +84,3 @@ The tracked materials and crystallized outputs are defined in `xmute_commodities
 ## Troubleshooting
 - **Token refresh issues**: Delete `token.json` if refresh failures persist; the app will fetch a new token on the next run.【F:bnet_auth_api.py†L7-L44】
 - **Stale data**: Re-run the refresh endpoint or restart the server to fetch a fresh commodity snapshot.
-
