@@ -12,7 +12,7 @@ Set the following variables before starting the application:
 
 - `BNET_CLIENT_ID`
 - `BNET_CLIENT_SECRET`
-
+- 
 For example:
 
 ```bash
